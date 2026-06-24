@@ -1,37 +1,36 @@
 # Bartosz Gontarek
-**AI-First Developer · E-commerce & Automation Builder**
+**AI-First Developer · Automation Builder**
 
 📧 gontarekbartosz12@gmail.com · 📱 +48 690 269 492 · 📍 Poland (Polish national) · Remote-ready
 
 ---
 
 ## Profile
-Self-taught **AI-first builder**. My main focus right now is **freelance branded e-commerce** — I design and ship **WooCommerce and Shopify** stores end-to-end — and around that I constantly build: algorithmic trading bots, an HTML5 game, AI content pipelines and automation agents. I work in an AI-first way with **Claude Code, Cursor and Gemini** and use **Model Context Protocol (MCP)** to wire agents to live data. **11 industry AI certificates** (8 Anthropic incl. *Claude Code in Action* & *MCP: Advanced Topics*; 3 IBM SkillsBuild). Several builds are works-in-progress that I push forward as time allows; my steady output is e-commerce. A customer-facing sales background gives me strong communication and a bias for shipping things that work.
+Self-taught **AI-first builder**. My core priority is developing **AI and automation systems** — I work daily with **Claude Code, Cursor and Gemini** and use **Model Context Protocol (MCP)** to wire agents to live data — across algorithmic trading bots, autonomous agents, an HTML5 game and AI content pipelines. In parallel I run **branded e-commerce** (WooCommerce/Shopify) as an **additional income stream**. All of these are active works-in-progress that I keep pushing forward. **11 industry AI certificates** (8 Anthropic incl. *Claude Code in Action* & *MCP: Advanced Topics*; 3 IBM SkillsBuild). A customer-facing sales background gives me strong communication and a bias for shipping.
 
 ## Technical Skills
 - **Languages:** Python, JavaScript (ES6, HTML5 Canvas), Bash & PowerShell, basic SQL
 - **AI engineering:** Claude Code · Cursor · Gemini · Model Context Protocol (MCP) · agentic workflows & subagents · prompt engineering · LLM tool-use
-- **E-commerce:** WordPress, WooCommerce, **Shopify**, NextCart/Takedrop, payments & logistics (InPost), branding
 - **APIs & integrations:** REST, Polymarket Gamma/CLOB, YouTube Data API v3, Alpaca, Telegram Bot API, Web3 (Polygon/Base)
 - **Data & ML:** SciPy curve fitting, statistical modeling, backtesting, OpenAI Whisper (GPU/CUDA)
+- **E-commerce (additional income):** WordPress, WooCommerce, Shopify, NextCart/Takedrop, payments & logistics, branding
 - **Tooling & infra:** Git, Linux VPS, cron automation, environment-based secrets, Obsidian, Postman
 
 ## Selected Projects (full case studies in portfolio)
-- **Branded E-commerce Stores** *(main, ongoing focus)* — design & build online stores end-to-end. *WooCommerce · Shopify · NextCart · branding · payments/logistics*
 - **Polymarket Trading Bots** — copy-trading, AI-divergence scanner & quant view-count model. *Python · Polymarket CLOB/Gamma · Web3 · cron/VPS*
 - **BeastBot** — prices YouTube-views markets via sigmoid fitting + multi-agent consensus. *Python · SciPy · YouTube API*
-- **STRONEVO** — web-studio brand + offline-proof demo sites. *HTML/CSS/JS · branding*
+- **trends_scout + "Świstak"** — daily autonomous agent: multi-source trend scan → LLM ranking → Telegram + vault. *Python · agentic · OpenRouter · cron · $0/mo*
 - **"Mrok Otchłani" ARPG** *(in progress)* — single-file HTML5/Canvas Diablo-like. *JavaScript · Canvas · 0 deps*
 - **Mia Vex** *(in progress)* — AI persona pipeline, image + voice generation. *Gemini/Vertex · ComfyUI · LoRA · RunPod*
 - **Video Transcriber** — autonomous Whisper folder-watcher. *Python · Whisper · CUDA*
+- **Branded E-commerce** *(additional income stream)* — branded WooCommerce/Shopify stores end-to-end (STRONEVO, Amovo). *WooCommerce · Shopify · NextCart · branding*
 
 ## Experience
 
-**Freelance Developer — E-commerce & Automation** — *Self-employed* · 2025 – present
-- **Main focus:** design & ship branded e-commerce stores end-to-end on **WooCommerce and Shopify** (product pages, payments, InPost/logistics, policies, copy).
+**Freelance Developer — AI, Automation & E-commerce** — *Self-employed* · 2025 – present
+- **Core focus:** build AI-first software and autonomous automations — trading bots, agents, content pipelines — on a Linux VPS (Python, cron, Telegram), with Claude Code + MCP + subagents as my primary dev environment.
+- Run **branded e-commerce as an additional income stream** — WooCommerce/Shopify stores end-to-end (STRONEVO, Amovo): product pages, payments, InPost/logistics, policies.
 - Deliver brand identity & visual design — logos, product creatives, landing pages.
-- Build autonomous Python automations (trading, scraping, content) on a Linux VPS with cron + Telegram alerting.
-- AI-first workflow: Claude Code + MCP + agentic subagents as the primary dev environment.
 
 **Warehouse Operative — D2C Fulfilment** — *GXO Logistics, Netherlands* · Jun – Oct 2025
 - Picked & packed e-commerce apparel with RF scanners; QA checks; productivity & H&S targets.

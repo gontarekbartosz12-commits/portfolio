@@ -6,21 +6,7 @@
 > agents to live data. Code samples in this portfolio are **sanitised** — all
 > API keys and secrets are removed and replaced with environment variables.
 
----
-
-## ★ Branded E-commerce Stores — CURRENT MAIN FOCUS
-**Stack:** WordPress · WooCommerce · Shopify · NextCart/Takedrop · payments (P24/PayU) · InPost/logistics · branding
-
-### What I do
-My steady, hands-on work: I design and ship **branded online stores end-to-end** for my own ventures and clients — not just installing a theme, but building the whole funnel: product pages and copy, payment + shipping integrations, legal pages, and the brand/visual identity around it.
-
-### Selected builds
-- **Lokse** — single-product WooCommerce store (fingerprint padlock); custom brand (slate + mint-LED), full product page + policies.
-- **Amovo** — dropshipping store on NextCart/Takedrop (FreshSwap line): product cards, regulations, privacy policy, InPost + home delivery, mentor-method funnel.
-- **GhostShell** — e-commerce brand (anti-peep phone cases) incl. competitor research and positioning.
-- **STRONEVO** — productised the service itself: a web-studio brand + demo sites to win store clients (project 4).
-
-**Demonstrates:** end-to-end product delivery, real understanding of conversion and the full commerce stack (payments, logistics, compliance), and brand sensibility — directly relevant to a consumer product like Booksy. *This is the work I put the most consistent time into; the builds below are things I create around it.*
+> **Positioning:** my core priority is **AI & automation engineering** (projects 1–7 below — all active works-in-progress). **Branded e-commerce** (final section) is an **additional income stream** I run in parallel, not my main focus.
 
 ---
 
@@ -157,6 +143,21 @@ A hands-off transcriber: drop a video in a folder and it produces subtitles auto
 
 ### What it demonstrates
 Practical ML deployment (running real ASR models locally on GPU), automation, and environment/repro discipline.
+
+---
+
+## ★ Branded E-commerce — additional income stream
+**Stack:** WordPress · WooCommerce · Shopify · NextCart/Takedrop · payments (P24/PayU) · InPost/logistics · branding
+
+Alongside my AI work, I design and ship **branded online stores end-to-end** — the whole funnel: product pages and copy, payment + shipping integrations, legal pages and the brand identity. This is an **additional, parallel income stream** — it funds the AI building, which is my main focus.
+
+### Builds
+- **STRONEVO** — my web-studio brand + offline-proof demo sites to win store clients *(active)*.
+- **Amovo** — dropshipping store on NextCart/Takedrop (FreshSwap line): product cards, policies, InPost + home delivery *(active)*.
+- **Lokse** — single-product WooCommerce store (fingerprint padlock), custom brand.
+- **GhostShell** — *former brand* (anti-peep phone cases), no longer active.
+
+**Demonstrates:** end-to-end product delivery, conversion and the full commerce stack (payments, logistics, compliance), and brand sensibility.
 
 ---
 

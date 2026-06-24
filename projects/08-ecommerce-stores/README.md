@@ -1,7 +1,8 @@
-# Branded E-commerce Stores — current main focus
+# Branded E-commerce Stores — additional income stream
 
-The work I put the most consistent time into: designing and shipping **branded online
-stores end-to-end** — building the whole funnel, not just installing a theme.
+Alongside my main focus (AI & automation engineering), I design and ship **branded
+online stores end-to-end** as an additional, parallel income stream — building the
+whole funnel, not just installing a theme.
 
 ## What "end-to-end" means here
 - Product pages + persuasive copy (verified product claims only).
@@ -9,17 +10,16 @@ stores end-to-end** — building the whole funnel, not just installing a theme.
 - Legal/compliance pages (regulations, privacy policy).
 - Brand & visual identity: logo, colour system, product creatives, infographics.
 
-## Selected builds
-| Store | Platform | Notes |
-|-------|----------|-------|
-| **Lokse** | WordPress / WooCommerce | Single-product store (fingerprint padlock); slate + mint-LED brand. |
-| **Amovo** | NextCart / Takedrop | Dropshipping (FreshSwap line); cards, policies, InPost, mentor-method funnel. |
-| **GhostShell** | E-commerce brand | Anti-peep phone cases; competitor research + positioning. |
-| **STRONEVO** | HTML/CSS/JS | Web-studio brand + demo sites to win store clients (see project 05). |
+## Builds
+| Store | Platform | Status | Notes |
+|-------|----------|--------|-------|
+| **STRONEVO** | HTML/CSS/JS | active | Web-studio brand + demo sites to win store clients (project 05). |
+| **Amovo** | NextCart / Takedrop | active | Dropshipping (FreshSwap line); cards, policies, InPost, mentor-method funnel. |
+| **Lokse** | WordPress / WooCommerce | built | Single-product store (fingerprint padlock); slate + mint-LED brand. |
+| **GhostShell** | E-commerce brand | former (inactive) | Anti-peep phone cases; brand no longer active. |
 
 ## What it demonstrates
 End-to-end product delivery, understanding of conversion and the full commerce stack
-(payments, logistics, compliance), and brand sensibility — directly relevant to a
-consumer product company.
+(payments, logistics, compliance), and brand sensibility.
 
-> Store builds live in dedicated project folders; this README is the overview.
+> This is a side income stream that supports my main work in AI and automation.

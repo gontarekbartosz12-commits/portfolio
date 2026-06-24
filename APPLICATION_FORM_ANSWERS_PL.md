@@ -11,7 +11,7 @@ Wgraj: **`CV_Bartosz_Gontarek_EN.pdf`** (jest w tym folderze).
 ---
 
 ## Summary (opcjonalne — wklej)
-> Self-taught AI-first developer. My main focus is freelance branded e-commerce — I design and ship WooCommerce and Shopify stores end-to-end — and around that I constantly build: Python trading bots, an HTML5 game and automation agents. I work daily with Claude Code, Cursor and Gemini, and use Model Context Protocol (MCP) to connect AI agents to live tools. I hold 11 AI certificates (8 Anthropic incl. Claude Code in Action and MCP: Advanced Topics; 3 IBM SkillsBuild). Strong communication from a customer-facing sales background, and a builder mentality.
+> Self-taught AI-first developer. My core priority is building AI and automation systems — trading bots, autonomous agents, an HTML5 game and AI content pipelines — working daily with Claude Code, Cursor and Gemini, and using Model Context Protocol (MCP) to connect agents to live tools. In parallel I run branded e-commerce (WooCommerce/Shopify) as an additional income stream. I hold 11 AI certificates (8 Anthropic incl. Claude Code in Action and MCP: Advanced Topics; 3 IBM SkillsBuild). Strong communication from a customer-facing sales background, and a builder mentality.
 
 ---
 
@@ -23,7 +23,7 @@ Wgraj: **`CV_Bartosz_Gontarek_EN.pdf`** (jest w tym folderze).
 ## Cover letter (opcjonalne, ale POLECAM — wklej)
 > Dear Booksy Team,
 >
-> I'm applying for your AI-first Software Engineer (Early Careers) role because it describes exactly how I already work. Over the past year I taught myself to build and ship real software with an AI-first workflow — Claude Code, Cursor and Gemini as daily tools, and MCP to connect agents to live data. I've built Polymarket trading bots in Python, a single-file HTML5/Canvas game, autonomous automation agents on a VPS, and — my steady focus — branded WooCommerce and Shopify e-commerce stores end-to-end.
+> I'm applying for your AI-first Software Engineer (Early Careers) role because it describes exactly how I already work. Over the past year I taught myself to build and ship real software with an AI-first workflow — Claude Code, Cursor and Gemini as daily tools, and MCP to connect agents to live data. My core focus is AI and automation: I've built Polymarket trading bots in Python, autonomous agents on a VPS, a single-file HTML5/Canvas game and AI content pipelines. Alongside this I run branded WooCommerce/Shopify e-commerce as an additional income stream.
 >
 > I hold 11 AI certificates, including Anthropic's Claude Code in Action and MCP: Advanced Topics, plus IBM SkillsBuild AI Fundamentals. My background is customer-facing sales, so I communicate clearly and care about shipping things people actually use — a good fit for a consumer product like Booksy.
 >
@@ -50,7 +50,7 @@ To program Early Careers, forma **B2B**. Bezpieczny, nie-zaniżony przedział dl
 | Legally eligible to work in Poland without sponsorship? | **YES** |
 | Current legal work authorization status | **I am a Polish national** |
 | Consent — Booksy may contact about future roles (12 mies.)? | **YES** (polecam — same plusy) |
-| Portfolio link (GitHub) | wklej `https://github.com/TWOJ-LOGIN/portfolio` (po wrzuceniu — patrz GITHUB_SETUP_PL.md) |
+| Portfolio link (GitHub) | **https://github.com/gontarekbartosz12-commits/portfolio** ✅ (już online) |
 | How did you learn about the Early Careers Programme? | Twój wybór (np. „Other" jeśli z LinkedIn/pracuj; „Facebook" jest OK) |
 | Privacy Notice consent (checkbox) | ✅ zaznacz |
 
