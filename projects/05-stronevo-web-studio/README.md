@@ -1,4 +1,7 @@
-# STRONEVO — web-studio brand & demo system
+# STRONEVO — web-studio brand & demo system  🌐 LIVE
+
+**Live site: https://stronevo.pl** — *"Strony internetowe i sklepy — Warszawa, Piaseczno"* (deployed).
+
 
 My own web-design studio: a brand, a catalog site, and a set of self-contained
 demo websites used to win clients.

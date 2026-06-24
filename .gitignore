@@ -17,3 +17,8 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Internal personal notes — keep local, NOT public (salary, strategy, how-to)
+APPLICATION_FORM_ANSWERS_PL.md
+JAK_UZYWAC_PL.md
+GITHUB_SETUP_PL.md

@@ -79,7 +79,7 @@ Strong vanilla-JS fundamentals, real-time rendering, state management and game-s
 
 ---
 
-## 4. STRONEVO — web-studio brand & demo system
+## 4. STRONEVO — web-studio brand & demo system  🌐 *LIVE at [stronevo.pl](https://stronevo.pl)*
 **Stack:** HTML/CSS/JS · responsive design · branding/identity
 
 ### What it is
@@ -146,13 +146,14 @@ Practical ML deployment (running real ASR models locally on GPU), automation, an
 
 ---
 
-## ★ Branded E-commerce — additional income stream
+## ★ Websites & Branded E-commerce — additional income stream
 **Stack:** WordPress · WooCommerce · Shopify · NextCart/Takedrop · payments (P24/PayU) · InPost/logistics · branding
 
 Alongside my AI work, I design and ship **branded online stores end-to-end** — the whole funnel: product pages and copy, payment + shipping integrations, legal pages and the brand identity. This is an **additional, parallel income stream** — it funds the AI building, which is my main focus.
 
 ### Builds
-- **STRONEVO** — my web-studio brand + offline-proof demo sites to win store clients *(active)*.
+- **STRONEVO** — my web-studio brand, **live at [stronevo.pl](https://stronevo.pl)** + offline-proof demo sites to win clients *(active)*.
+- **Balustrady (client website)** — full WordPress build pack for a railings company: 10-page site, mega-menu, product template, filtered gallery, quote form, unique SEO + schema per page, GA4/Pixel tracking *(built, ready to deploy)*.
 - **Amovo** — dropshipping store on NextCart/Takedrop (FreshSwap line): product cards, policies, InPost + home delivery *(active)*.
 - **Lokse** — single-product WooCommerce store (fingerprint padlock), custom brand.
 - **GhostShell** — *former brand* (anti-peep phone cases), no longer active.

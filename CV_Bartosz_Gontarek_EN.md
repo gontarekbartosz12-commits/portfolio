@@ -2,6 +2,7 @@
 **AI-First Developer · Automation Builder**
 
 📧 gontarekbartosz12@gmail.com · 📱 +48 690 269 492 · 📍 Poland (Polish national) · Remote-ready
+🔗 Portfolio: github.com/gontarekbartosz12-commits/portfolio · 🌐 Live site: **stronevo.pl**
 
 ---
 
@@ -23,7 +24,7 @@ Self-taught **AI-first builder**. My core priority is developing **AI and automa
 - **"Mrok Otchłani" ARPG** *(in progress)* — single-file HTML5/Canvas Diablo-like. *JavaScript · Canvas · 0 deps*
 - **Mia Vex** *(in progress)* — AI persona pipeline, image + voice generation. *Gemini/Vertex · ComfyUI · LoRA · RunPod*
 - **Video Transcriber** — autonomous Whisper folder-watcher. *Python · Whisper · CUDA*
-- **Branded E-commerce** *(additional income stream)* — branded WooCommerce/Shopify stores end-to-end (STRONEVO, Amovo). *WooCommerce · Shopify · NextCart · branding*
+- **Websites & Branded E-commerce** *(additional income stream)* — STRONEVO web studio (**stronevo.pl — live**), WordPress client sites (balustrady — 10-page SEO build), WooCommerce/Shopify stores (Amovo). *HTML/CSS/JS · WordPress · Shopify · branding*
 
 ## Experience
 
