@@ -41,7 +41,7 @@ An end-to-end **agentic trading pipeline** on the Kalshi prediction market — 2
 - **Kalshi multi-stage** — `stage1-scanner` + `stage2-executor` split for separation of concerns; RSA and HTTP-node variants.
 - **AI Trading Agent L2** — mean-reversion + sentiment; schedule → HTTP data → code signals → LLM → Sheets.
 - **Crypto Scalping Agent (24/7)** — momentum scalping loop on exchange APIs.
-- **Voltex Lead Scraper / Master** — lead-generation automation (scrape → enrich → store) for an electrical-works brand.
+- **Voltex Lead Scraper** *(included: `voltex-lead-scraper.json`)* — lead-generation automation: SerpAPI Google-Maps search → parse business leads → store. A non-trading example showing breadth. *(Sanitised — SerpAPI key is a `WKLEJ_SERPAPI_KEY` placeholder.)*
 
 ## What it shows an employer
 I can design and ship **real low-code/agentic automations** end-to-end in n8n — not toy

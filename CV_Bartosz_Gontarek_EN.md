@@ -22,6 +22,8 @@ Self-taught **AI-first builder**. My core priority is developing **AI and automa
 - **BeastBot** — prices YouTube-views markets via sigmoid fitting + multi-agent consensus. *Python · SciPy · YouTube API*
 - **trends_scout + "Świstak"** — daily autonomous agent: multi-source trend scan → LLM ranking → Telegram + vault. *Python · agentic · OpenRouter · cron · $0/mo*
 - **n8n Automation Workflows** — low-code agentic pipelines: Kalshi trading agent (RSA-signed APIs → Claude analysis → order → Sheets), crypto scalping, lead scrapers. *n8n · JS code nodes · Anthropic API · Google Sheets*
+- **Alpaca Stock Trader** — Lumibot paper-trading bot (RSI+Bollinger+SMA, systemd, tests, verify) + Alpaca MCP (AI places trades via MCP). *Python · Lumibot · Alpaca · MCP · pytest*
+- **Tradebot — swing-momentum backtest** — vectorbt research with walk-forward validation + hard decision gates; production gated on evidence. *Python · vectorbt · pandas · yfinance*
 - **"Mrok Otchłani" ARPG** *(in progress)* — single-file HTML5/Canvas Diablo-like. *JavaScript · Canvas · 0 deps*
 - **Mia Vex** *(in progress)* — AI persona pipeline, image + voice generation. *Gemini/Vertex · ComfyUI · LoRA · RunPod*
 - **Video Transcriber** — autonomous Whisper folder-watcher. *Python · Whisper · CUDA*

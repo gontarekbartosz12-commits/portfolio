@@ -23,7 +23,9 @@ portfolio-booksy/
     ├── 08-ecommerce-stores/         ← WooCommerce/Shopify branded stores (additional income)
     ├── 09-trends-scout-swistak/     ← daily trend agent + Świstak Telegram bot
     ├── 10-client-websites/          ← STRONEVO (live: stronevo.pl) + balustrady WP build
-    └── 11-n8n-automation-workflows/ ← low-code agentic pipelines (Kalshi/Claude, sanitised)
+    ├── 11-n8n-automation-workflows/ ← low-code agentic pipelines (Kalshi/Claude + Voltex scraper, sanitised)
+    ├── 12-alpaca-stock-trader/      ← Lumibot+Alpaca bot + Alpaca MCP (strategy, tests, runbook)
+    └── 13-tradebot-backtest/        ← vectorbt swing-momentum research (walk-forward, decision gates)
 ```
 
 ## How to make PDFs

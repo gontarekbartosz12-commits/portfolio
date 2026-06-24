@@ -6,7 +6,7 @@
 > agents to live data. Code samples in this portfolio are **sanitised** — all
 > API keys and secrets are removed and replaced with environment variables.
 
-> **Positioning:** my core priority is **AI & automation engineering** (projects 1–8 below — all active works-in-progress). **Branded e-commerce** (final section) is an **additional income stream** I run in parallel, not my main focus.
+> **Positioning:** my core priority is **AI & automation engineering** (projects 1–10 below — all active works-in-progress). **Branded e-commerce** (final section) is an **additional income stream** I run in parallel, not my main focus.
 
 ---
 
@@ -157,6 +157,32 @@ A suite of **low-code agentic pipelines** built in n8n. The showcase is a **Kals
 - Plus: Kalshi multi-stage scanner/executor, a crypto scalping agent, and a Voltex lead-scraper.
 
 **Demonstrates:** real low-code/automation delivery — scheduling, authenticated APIs, cryptographic signing, LLM decisions and guardrails. *(Included workflow is sanitised — placeholder keys, dry-run on.)*
+
+---
+
+## 9. Alpaca Stock Trader — Lumibot bot + Alpaca MCP
+**Stack:** Python · Lumibot · Alpaca API (paper) · Model Context Protocol · systemd · pytest
+
+An automated **US-equities paper-trading bot** on Alpaca, plus an AI variant where an LLM places trades through the **official Alpaca MCP** server — productionised, not a notebook.
+
+- **Strategy** — ConservativeV1: RSI + Bollinger Bands + SMA50/200 trend filter, with pure-logic unit tests.
+- **Ops** — systemd service (resource limits + hardening), idempotent 8-phase deploy, post-deploy smoke test (auth, orders, positions, Telegram).
+- **MCP integration** — Claude queries the account and places orders via Alpaca MCP tools; paper-first.
+
+**Demonstrates:** productionised trading infra + the exact agentic/MCP skill the role asks for, on a real broker API. *(Paper-only; secrets env-based.)*
+
+---
+
+## 10. Tradebot — swing-momentum backtest
+**Stack:** Python · vectorbt · pandas · yfinance · Jupyter
+
+A rigorous backtest built to decide **whether a production bot was worth building** — with explicit gates that said "not yet". That disciplined "no" is the point.
+
+- **Method** — composite momentum + ADX/SMA trend filter, no-look-ahead entries, ATR trailing stops, 5 bps slippage, **walk-forward validation** (6 folds).
+- **Decision gates** — Sharpe ≥ 0.5, max DD ≤ 15%, walk-forward Sharpe ≥ 0.3, ≥ 150 trades — fail any → don't ship.
+- **Honesty** — openly documents survivorship + look-ahead biases and mitigations.
+
+**Demonstrates:** quant rigor and evidence-gated decisions — the maturity to *not* ship a losing strategy.
 
 ---
 

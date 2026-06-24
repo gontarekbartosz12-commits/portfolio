@@ -1,0 +1,228 @@
+{
+  "name": "Voltex Lead Scraper — Google Maps + Enrichment",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# VOLTEX LEAD SCRAPER\n## Osobny workflow — scrapuje leady i wrzuca do Google Sheets\n\n**Źródła:**\n1. Google Maps API (miejsca wg kategorii + lokalizacji)\n2. Enrichment: strona www, email, telefon\n3. Deduplikacja vs istniejące leady\n4. Zapis do Sheets #1 (tab Leads)\n\n**Trigger:** Codziennie o 07:00 LUB ręcznie\n\n**Konfiguracja:**\n- Zmień SPREADSHEET_ID w Config node\n- Dodaj Google Sheets OAuth2 credential\n- Opcjonalnie: dodaj SerpAPI key dla Google Maps scraping",
+        "height": 340,
+        "width": 520,
+        "color": 1
+      },
+      "id": "info-note",
+      "name": "📋 LEAD SCRAPER INFO",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [200, 100]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "SPREADSHEET_ID", "value": "WKLEJ_SPREADSHEET_ID" },
+            { "name": "SHEET_NAME_LEADS", "value": "Leads" },
+            { "name": "COUNTRY", "value": "Netherlands" },
+            { "name": "LANGUAGE", "value": "nl" }
+          ],
+          "object": [
+            {
+              "name": "SEARCH_QUERIES",
+              "value": "={{ [\n  { \"query\": \"fashion retail store\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\", \"Arnhem\", \"Tilburg\", \"Groningen\", \"Breda\", \"Nijmegen\"] },\n  { \"query\": \"restaurant horeca\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\", \"Arnhem\", \"Maastricht\", \"Haarlem\", \"Leiden\", \"Delft\"] },\n  { \"query\": \"hotel boutique\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Maastricht\", \"Eindhoven\"] },\n  { \"query\": \"tandartspraktijk dental\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\", \"Arnhem\", \"Tilburg\", \"Groningen\"] },\n  { \"query\": \"fysiotherapie praktijk\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\", \"Arnhem\"] },\n  { \"query\": \"autogarage dealership\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\", \"Arnhem\", \"Tilburg\"] },\n  { \"query\": \"warehouse logistics magazijn\", \"cities\": [\"Rotterdam\", \"Amsterdam\", \"Eindhoven\", \"Tilburg\", \"Venlo\", \"Breda\"] },\n  { \"query\": \"franchise winkel\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\"] },\n  { \"query\": \"bouwbedrijf aannemer\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\", \"Arnhem\", \"Tilburg\"] },\n  { \"query\": \"supermarket food retail\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\"] },\n  { \"query\": \"kledingwinkel fashion boutique\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Haarlem\", \"Maastricht\"] },\n  { \"query\": \"schoenwinkel shoe store\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\"] },\n  { \"query\": \"sportwinkel sport store\", \"cities\": [\"Amsterdam\", \"Rotterdam\", \"Den Haag\", \"Utrecht\", \"Eindhoven\"] },\n  { \"query\": \"transportbedrijf depot\", \"cities\": [\"Rotterdam\", \"Amsterdam\", \"Eindhoven\", \"Venlo\", \"Breda\", \"Tilburg\"] }\n] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "config-node",
+      "name": "⚙️ Config Scraper",
+      "type": "n8n-nodes-base.set",
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 24, "triggerAtHour": 7 }]
+        }
+      },
+      "id": "daily-trigger",
+      "name": "⏰ Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [200, 300]
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "▶️ Manual Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [200, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generuj kombinacje query + city z Config\nconst config = $input.first().json;\nconst queries = config.SEARCH_QUERIES || [];\nconst results = [];\n\nfor (const q of queries) {\n  for (const city of q.cities) {\n    results.push({\n      json: {\n        search_query: `${q.query} in ${city}, Netherlands`,\n        query_type: q.query,\n        city: city,\n        country: 'Netherlands'\n      }\n    });\n  }\n}\n\n// Losuj max 20 kombinacji dziennie (żeby nie przekroczyć limitów)\nconst shuffled = results.sort(() => Math.random() - 0.5);\nreturn shuffled.slice(0, 20);"
+      },
+      "id": "generate-queries",
+      "name": "🔀 Generate Search Queries",
+      "type": "n8n-nodes-base.code",
+      "position": [720, 380]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": { "reset": false }
+      },
+      "id": "loop-queries",
+      "name": "🔄 Loop Queries",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [940, 380]
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search.json?engine=google_maps&q={{ encodeURIComponent($json.search_query) }}&ll=@52.3676,4.9041,12z&type=search&api_key=WKLEJ_SERPAPI_KEY",
+        "options": {
+          "timeout": 30000,
+          "redirect": { "redirect": {} }
+        }
+      },
+      "id": "serpapi-search",
+      "name": "🔍 SerpAPI Google Maps",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1160, 380],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parsuj wyniki SerpAPI Google Maps\nconst input = $input.first().json;\nconst results = input.local_results || input.place_results || [];\nconst city = $('🔀 Generate Search Queries').first().json.city;\nconst queryType = $('🔀 Generate Search Queries').first().json.query_type;\n\nconst leads = [];\n\nfor (const place of results) {\n  // FILTR: musi mieć telefon\n  if (!place.phone) continue;\n  \n  // FILTR: pomiń jeśli brak adresu\n  if (!place.address) continue;\n  \n  // FILTR: pomiń eenmanszaken (rating count < 5 = prawdopodobnie bardzo mały)\n  // Ten filtr jest miękki — możesz go wyłączyć\n  \n  // FILTR: pomiń sieci korporacyjne (HQ)\n  const skipNames = ['albert heijn', 'ikea', 'jumbo', 'lidl', 'aldi', 'action', 'hema', 'kruidvat', 'blokker'];\n  const nameLower = (place.title || '').toLowerCase();\n  const isCorpHQ = skipNames.some(s => nameLower.includes(s));\n  if (isCorpHQ) continue;\n  \n  // Określ sektor na podstawie query type\n  let sektor = 'onbekend';\n  if (queryType.includes('fashion') || queryType.includes('kleding') || queryType.includes('schoen') || queryType.includes('sport')) sektor = 'retail';\n  else if (queryType.includes('restaurant') || queryType.includes('horeca') || queryType.includes('hotel')) sektor = 'horeca';\n  else if (queryType.includes('warehouse') || queryType.includes('logistics') || queryType.includes('transport')) sektor = 'logistiek';\n  else if (queryType.includes('tandarts') || queryType.includes('fysio')) sektor = 'zorg';\n  else if (queryType.includes('bouw') || queryType.includes('aannemer')) sektor = 'bouw';\n  else if (queryType.includes('franchise') || queryType.includes('supermarket') || queryType.includes('food')) sektor = 'retail';\n  else if (queryType.includes('auto') || queryType.includes('garage')) sektor = 'automotive';\n  \n  leads.push({\n    json: {\n      Nazwa_Firmy: place.title || '',\n      Adres: place.address || '',\n      Miasto: city,\n      Telefon: place.phone || '',\n      Website: place.website || place.link || '',\n      Sektor: sektor,\n      Rating: place.rating || '',\n      Reviews: place.reviews || '',\n      Godziny_Otwarcia: (place.hours || place.operating_hours?.wednesday) || '',\n      GPS: place.gps_coordinates ? `${place.gps_coordinates.latitude},${place.gps_coordinates.longitude}` : '',\n      Zrodlo: 'google_maps_scraper',\n      Data_Scrape: new Date().toISOString().split('T')[0]\n    }\n  });\n}\n\nreturn leads.length > 0 ? leads : [{ json: { skip: true } }];"
+      },
+      "id": "parse-results",
+      "name": "📊 Parse Results",
+      "type": "n8n-nodes-base.code",
+      "position": [1380, 380]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.skip }}", "value2": true, "operation": "notEqual" }]
+        }
+      },
+      "id": "filter-valid",
+      "name": "✅ Filter Valid",
+      "type": "n8n-nodes-base.filter",
+      "position": [1600, 380]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "documentId": { "__rl": true, "mode": "id", "value": "=WKLEJ_SPREADSHEET_ID" },
+        "sheetName": { "__rl": true, "mode": "list", "value": "Leads" },
+        "returnAll": true
+      },
+      "id": "get-existing-leads",
+      "name": "📥 Get Existing Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [1820, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deduplikacja: sprawdź czy lead już istnieje w Sheets\nconst newLeads = $('✅ Filter Valid').all();\nconst existingLeads = $('📥 Get Existing Leads').all();\n\n// Zbuduj set istniejących firm (Nazwa + Miasto)\nconst existingSet = new Set();\nfor (const lead of existingLeads) {\n  const key = `${(lead.json.Nazwa_Firmy || '').toLowerCase().trim()}|${(lead.json.Miasto || '').toLowerCase().trim()}`;\n  existingSet.add(key);\n}\n\n// Filtruj duplikaty\nconst uniqueLeads = [];\nconst seenInBatch = new Set();\n\nfor (const lead of newLeads) {\n  const key = `${(lead.json.Nazwa_Firmy || '').toLowerCase().trim()}|${(lead.json.Miasto || '').toLowerCase().trim()}`;\n  \n  // Pomiń jeśli już w Sheets\n  if (existingSet.has(key)) continue;\n  \n  // Pomiń jeśli duplikat w bieżącym batchu\n  if (seenInBatch.has(key)) continue;\n  \n  seenInBatch.add(key);\n  \n  // Generuj ID\n  const id = `VTX-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;\n  \n  uniqueLeads.push({\n    json: {\n      ID: id,\n      Nazwa_Firmy: lead.json.Nazwa_Firmy,\n      Telefon: lead.json.Telefon,\n      Email: '',\n      Miasto: lead.json.Miasto,\n      Sektor: lead.json.Sektor,\n      Status: 'Nieuw',\n      Notatki: `Website: ${lead.json.Website || 'brak'} | Rating: ${lead.json.Rating || 'n/a'} (${lead.json.Reviews || '0'} reviews) | Adres: ${lead.json.Adres}`,\n      Liczba_Prob: 0,\n      Callback_Time: '',\n      Data_Ostatniego_Kontaktu: '',\n      Zrodlo: lead.json.Zrodlo\n    }\n  });\n}\n\nif (uniqueLeads.length === 0) {\n  return [{ json: { no_new_leads: true, message: 'Brak nowych leadów do dodania' } }];\n}\n\nreturn uniqueLeads;"
+      },
+      "id": "deduplicate",
+      "name": "🔄 Deduplicate",
+      "type": "n8n-nodes-base.code",
+      "position": [2040, 380]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.no_new_leads }}", "value2": true, "operation": "notEqual" }]
+        }
+      },
+      "id": "filter-has-leads",
+      "name": "🆕 Has New Leads?",
+      "type": "n8n-nodes-base.filter",
+      "position": [2260, 380]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "=WKLEJ_SPREADSHEET_ID" },
+        "sheetName": { "__rl": true, "mode": "list", "value": "Leads" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.ID }}",
+            "Nazwa_Firmy": "={{ $json.Nazwa_Firmy }}",
+            "Telefon": "={{ $json.Telefon }}",
+            "Email": "={{ $json.Email }}",
+            "Miasto": "={{ $json.Miasto }}",
+            "Sektor": "={{ $json.Sektor }}",
+            "Status": "={{ $json.Status }}",
+            "Notatki": "={{ $json.Notatki }}",
+            "Liczba_Prob": "={{ $json.Liczba_Prob }}",
+            "Callback_Time": "={{ $json.Callback_Time }}",
+            "Data_Ostatniego_Kontaktu": "={{ $json.Data_Ostatniego_Kontaktu }}",
+            "Zrodlo": "={{ $json.Zrodlo }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "write-to-sheets",
+      "name": "📤 Write to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [2480, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Podsumowanie scrape'a\nconst newLeads = $('📤 Write to Sheets').all();\nconst count = newLeads.length;\nconst date = new Date().toISOString().split('T')[0];\n\n// Breakdown per sektor\nconst sektorCount = {};\nfor (const lead of newLeads) {\n  const s = lead.json.Sektor || 'onbekend';\n  sektorCount[s] = (sektorCount[s] || 0) + 1;\n}\n\nconst breakdown = Object.entries(sektorCount)\n  .map(([k, v]) => `${k}: ${v}`)\n  .join(', ');\n\n// Breakdown per miasto\nconst cityCount = {};\nfor (const lead of newLeads) {\n  const c = lead.json.Miasto || 'onbekend';\n  cityCount[c] = (cityCount[c] || 0) + 1;\n}\n\nconst cityBreakdown = Object.entries(cityCount)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 5)\n  .map(([k, v]) => `${k}: ${v}`)\n  .join(', ');\n\nreturn [{\n  json: {\n    date: date,\n    total_new_leads: count,\n    sektor_breakdown: breakdown,\n    city_breakdown: cityBreakdown,\n    message: `🟢 Lead Scraper ${date}: ${count} nieuwe leads toegevoegd. Sectoren: ${breakdown}. Top steden: ${cityBreakdown}.`\n  }\n}];"
+      },
+      "id": "summary",
+      "name": "📊 Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [2700, 380]
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v18.0/WKLEJ_WHATSAPP_PHONE_ID/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"WKLEJ_NUMER_WLASCICIELA\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ $json.message }}\"\n  }\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "whatsapp-alert",
+      "name": "📱 WhatsApp Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [2920, 380],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "content": "# ALTERNATYWA BEZ SERPAPI\n## Jeśli nie chcesz płacić za SerpAPI:\n\n**Opcja 1: Ręczny import CSV**\nStwórz CSV z leadami (np. z Google Maps ręcznie)\ni importuj do Sheets. Ten workflow wtedy\ntylko deduplikuje i formatuje.\n\n**Opcja 2: Apify Google Maps Scraper**\nTańsze niż SerpAPI. Zamień node SerpAPI\nna HTTP Request do Apify API.\n\n**Opcja 3: ScrapingBee / Bright Data**\nProfesjonalny scraping. Droższy ale\nbardziej niezawodny.",
+        "height": 280,
+        "width": 380,
+        "color": 3
+      },
+      "id": "alt-note",
+      "name": "💡 Alternatywy",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [1100, 600]
+    }
+  ],
+  "connections": {
+    "⏰ Daily 07:00": { "main": [[{ "node": "⚙️ Config Scraper", "type": "main", "index": 0 }]] },
+    "▶️ Manual Start": { "main": [[{ "node": "⚙️ Config Scraper", "type": "main", "index": 0 }]] },
+    "⚙️ Config Scraper": { "main": [[{ "node": "🔀 Generate Search Queries", "type": "main", "index": 0 }]] },
+    "🔀 Generate Search Queries": { "main": [[{ "node": "🔄 Loop Queries", "type": "main", "index": 0 }]] },
+    "🔄 Loop Queries": { "main": [[{ "node": "🔍 SerpAPI Google Maps", "type": "main", "index": 0 }]] },
+    "🔍 SerpAPI Google Maps": { "main": [[{ "node": "📊 Parse Results", "type": "main", "index": 0 }]] },
+    "📊 Parse Results": { "main": [[{ "node": "✅ Filter Valid", "type": "main", "index": 0 }]] },
+    "✅ Filter Valid": { "main": [[{ "node": "📥 Get Existing Leads", "type": "main", "index": 0 }]] },
+    "📥 Get Existing Leads": { "main": [[{ "node": "🔄 Deduplicate", "type": "main", "index": 0 }]] },
+    "🔄 Deduplicate": { "main": [[{ "node": "🆕 Has New Leads?", "type": "main", "index": 0 }]] },
+    "🆕 Has New Leads?": { "main": [[{ "node": "📤 Write to Sheets", "type": "main", "index": 0 }]] },
+    "📤 Write to Sheets": { "main": [[{ "node": "📊 Summary", "type": "main", "index": 0 }]] },
+    "📊 Summary": { "main": [[{ "node": "📱 WhatsApp Report", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "Voltex Solutions" }, { "name": "Lead Scraper" }]
+}

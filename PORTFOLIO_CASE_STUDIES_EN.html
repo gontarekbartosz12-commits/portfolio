@@ -41,7 +41,7 @@
 </header>
 
 <div class="note" style="background:#eef6ee;border-left-color:#2e9e5b;">
-  <b>Positioning:</b> my core priority is <b>AI &amp; automation engineering</b> (projects 1–8 below — all active works-in-progress). <b>Branded e-commerce</b> (final section) is an <b>additional income stream</b> I run in parallel, not my main focus.
+  <b>Positioning:</b> my core priority is <b>AI &amp; automation engineering</b> (projects 1–10 below — all active works-in-progress). <b>Branded e-commerce</b> (final section) is an <b>additional income stream</b> I run in parallel, not my main focus.
 </div>
 
 <div class="proj">
@@ -152,6 +152,30 @@ trader.py  → main loop   ·   monitor.py → exit logic</pre>
     <li>Plus: Kalshi multi-stage scanner/executor, a crypto scalping agent, and a Voltex lead-scraper workflow.</li>
   </ul>
   <p><b>Demonstrates:</b> real low-code/automation delivery — scheduling, authenticated APIs, cryptographic signing, LLM decisions and guardrails. <i>(Included workflow is sanitised — placeholder keys, dry-run on.)</i></p>
+</div>
+
+<div class="proj">
+  <h2>9 · Alpaca Stock Trader — Lumibot bot + Alpaca MCP</h2>
+  <div class="stack">Python · Lumibot · Alpaca API (paper) · Model Context Protocol · systemd · pytest</div>
+  <p>An automated <b>US-equities paper-trading bot</b> on Alpaca, plus an AI variant where an LLM places trades through the <b>official Alpaca MCP</b> server — productionised, not a notebook.</p>
+  <ul>
+    <li><b>Strategy</b> — ConservativeV1: RSI + Bollinger Bands + SMA50/200 trend filter, with pure-logic unit tests.</li>
+    <li><b>Ops</b> — systemd service (resource limits + hardening), idempotent 8-phase deploy, post-deploy smoke test (auth, orders, positions, Telegram).</li>
+    <li><b>MCP integration</b> — Claude queries the account and places orders via Alpaca MCP tools; paper-first.</li>
+  </ul>
+  <p><b>Demonstrates:</b> productionised trading infra + the exact agentic/MCP skill the role asks for, on a real broker API. <i>(Paper-only; secrets env-based.)</i></p>
+</div>
+
+<div class="proj">
+  <h2>10 · Tradebot — swing-momentum backtest</h2>
+  <div class="stack">Python · vectorbt · pandas · yfinance · Jupyter</div>
+  <p>A rigorous backtest built to decide <b>whether a production bot was worth building</b> — with explicit gates that said "not yet". That disciplined "no" is the point.</p>
+  <ul>
+    <li><b>Method</b> — composite momentum + ADX/SMA trend filter, no-look-ahead entries, ATR trailing stops, 5 bps slippage, <b>walk-forward validation</b> (6 folds).</li>
+    <li><b>Decision gates</b> — Sharpe ≥ 0.5, max DD ≤ 15%, walk-forward Sharpe ≥ 0.3, ≥ 150 trades — fail any → don't ship.</li>
+    <li><b>Honesty</b> — openly documents survivorship + look-ahead biases and mitigations.</li>
+  </ul>
+  <p><b>Demonstrates:</b> quant rigor and evidence-gated decisions — the maturity to <i>not</i> ship a losing strategy.</p>
 </div>
 
 <div class="proj">
