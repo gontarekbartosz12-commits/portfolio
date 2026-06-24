@@ -19,7 +19,9 @@ portfolio-booksy/
     ├── 04-pixel-arpg-game/          ← HTML5/Canvas game
     ├── 05-stronevo-web-studio/      ← web studio brand + demos
     ├── 06-video-transcriber/        ← Whisper GPU pipeline
-    └── 07-mia-vex-ai-pipeline/      ← generative-AI persona pipeline
+    ├── 07-mia-vex-ai-pipeline/      ← generative-AI persona pipeline (in progress)
+    ├── 08-ecommerce-stores/         ← WooCommerce/Shopify branded stores (main focus)
+    └── 09-trends-scout-swistak/     ← daily trend agent + Świstak Telegram bot
 ```
 
 ## How to make PDFs
