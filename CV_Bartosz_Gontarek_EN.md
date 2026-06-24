@@ -11,7 +11,7 @@ Self-taught **AI-first builder**. My core priority is developing **AI and automa
 
 ## Technical Skills
 - **Languages:** Python, JavaScript (ES6, HTML5 Canvas), Bash & PowerShell, basic SQL
-- **AI engineering:** Claude Code · Cursor · Gemini · Model Context Protocol (MCP) · agentic workflows & subagents · prompt engineering · LLM tool-use
+- **AI engineering:** Claude Code · Cursor · Gemini · Model Context Protocol (MCP) · **n8n** (low-code automation) · agentic workflows & subagents · prompt engineering · LLM tool-use
 - **APIs & integrations:** REST, Polymarket Gamma/CLOB, YouTube Data API v3, Alpaca, Telegram Bot API, Web3 (Polygon/Base)
 - **Data & ML:** SciPy curve fitting, statistical modeling, backtesting, OpenAI Whisper (GPU/CUDA)
 - **E-commerce (additional income):** WordPress, WooCommerce, Shopify, NextCart/Takedrop, payments & logistics, branding
@@ -21,6 +21,7 @@ Self-taught **AI-first builder**. My core priority is developing **AI and automa
 - **Polymarket Trading Bots** — copy-trading, AI-divergence scanner & quant view-count model. *Python · Polymarket CLOB/Gamma · Web3 · cron/VPS*
 - **BeastBot** — prices YouTube-views markets via sigmoid fitting + multi-agent consensus. *Python · SciPy · YouTube API*
 - **trends_scout + "Świstak"** — daily autonomous agent: multi-source trend scan → LLM ranking → Telegram + vault. *Python · agentic · OpenRouter · cron · $0/mo*
+- **n8n Automation Workflows** — low-code agentic pipelines: Kalshi trading agent (RSA-signed APIs → Claude analysis → order → Sheets), crypto scalping, lead scrapers. *n8n · JS code nodes · Anthropic API · Google Sheets*
 - **"Mrok Otchłani" ARPG** *(in progress)* — single-file HTML5/Canvas Diablo-like. *JavaScript · Canvas · 0 deps*
 - **Mia Vex** *(in progress)* — AI persona pipeline, image + voice generation. *Gemini/Vertex · ComfyUI · LoRA · RunPod*
 - **Video Transcriber** — autonomous Whisper folder-watcher. *Python · Whisper · CUDA*

@@ -6,7 +6,7 @@
 > agents to live data. Code samples in this portfolio are **sanitised** — all
 > API keys and secrets are removed and replaced with environment variables.
 
-> **Positioning:** my core priority is **AI & automation engineering** (projects 1–7 below — all active works-in-progress). **Branded e-commerce** (final section) is an **additional income stream** I run in parallel, not my main focus.
+> **Positioning:** my core priority is **AI & automation engineering** (projects 1–8 below — all active works-in-progress). **Branded e-commerce** (final section) is an **additional income stream** I run in parallel, not my main focus.
 
 ---
 
@@ -143,6 +143,20 @@ A hands-off transcriber: drop a video in a folder and it produces subtitles auto
 
 ### What it demonstrates
 Practical ML deployment (running real ASR models locally on GPU), automation, and environment/repro discipline.
+
+---
+
+## 8. n8n Automation Workflows
+**Stack:** n8n · JavaScript code nodes (Node crypto) · REST/HTTP · Anthropic API · Google Sheets · schedule
+
+A suite of **low-code agentic pipelines** built in n8n. The showcase is a **Kalshi micro-trading agent** (20+ nodes): schedule → RSA-sign requests (crypto) → fetch ~50 market series → filter → **Claude API analysis** → risk-checked decision → signed order → Google Sheets logging, with a safe `dry_run` switch.
+
+- **Custom code nodes** — RSA-PSS / SHA-256 request signing, JSON parsing, validation and risk rules in JS.
+- **LLM-in-the-loop** — calls the Anthropic API and parses the model's JSON trade decision.
+- **Control flow** — IF branching, Merge, schedule + manual triggers, append-only Sheets logging.
+- Plus: Kalshi multi-stage scanner/executor, a crypto scalping agent, and a Voltex lead-scraper.
+
+**Demonstrates:** real low-code/automation delivery — scheduling, authenticated APIs, cryptographic signing, LLM decisions and guardrails. *(Included workflow is sanitised — placeholder keys, dry-run on.)*
 
 ---
 

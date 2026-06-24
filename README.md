@@ -22,7 +22,8 @@ portfolio-booksy/
     ├── 07-mia-vex-ai-pipeline/      ← generative-AI persona pipeline (in progress)
     ├── 08-ecommerce-stores/         ← WooCommerce/Shopify branded stores (additional income)
     ├── 09-trends-scout-swistak/     ← daily trend agent + Świstak Telegram bot
-    └── 10-client-websites/          ← STRONEVO (live: stronevo.pl) + balustrady WP build
+    ├── 10-client-websites/          ← STRONEVO (live: stronevo.pl) + balustrady WP build
+    └── 11-n8n-automation-workflows/ ← low-code agentic pipelines (Kalshi/Claude, sanitised)
 ```
 
 ## How to make PDFs

@@ -1,0 +1,322 @@
+{
+  "name": "Kalshi Micro Agent v4 (Multi-Series)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 30 }] }
+      },
+      "id": "trigger-schedule",
+      "name": "⏰ Every 30 Min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {},
+      "id": "trigger-manual",
+      "name": "▶️ Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    api_key_id: 'TUTAJ_KEY_ID',\n    private_key_pem: `-----BEGIN RSA PRIVATE KEY-----\nTUTAJ_KLUCZ_PEM\n-----END RSA PRIVATE KEY-----`,\n    kalshi_base: 'https://api.elections.kalshi.com/trade-api/v2',\n    claude_api_key: 'TUTAJ_CLAUDE_KEY',\n    dry_run: true\n  }\n}];"
+      },
+      "id": "config",
+      "name": "⚙️ Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst config = $input.first().json;\n\n// Series tickers to scan - each becomes a separate API call\nconst series = [\n  // Crypto daily\n  'KXBTCD', 'KXETHD', 'KXSOLD', 'KXDOGED', 'KXXRPD',\n  // Crypto weekly/other\n  'KXBTC', 'KXETH', 'KXSOL',\n  // Sports\n  'KXNBAGAME', 'KXNBASPREAD', 'KXNBATOTAL', 'KXNBAPTS',\n  'KXNHLGAME', 'KXNHLSPREAD', 'KXNHLTOTAL',\n  'KXNCAAMBGAME', 'KXNCAAMBSPREAD',\n  'KXMLBGAME', 'KXEPLGAME', 'KXLALIGAGAME',\n  'KXUFCFIGHT', 'KXPGA',\n  // Economics\n  'KXFED', 'KXCPI', 'KXGDP', 'KXJOBLESS', 'KXNONFARM',\n  'KXGASPRICE', 'KXRETAIL',\n  // Financials\n  'KXINXD', 'KXINX',\n  'KXNASD', 'KXNAS',\n  'KXWTI', 'KXGOLD',\n  'KXEURUSD', 'KXUSDJPY',\n  // Climate\n  'KXHIGHNY', 'KXLOWNY', 'KXHIGHCHI',\n  // Politics\n  'KXTRUMP', 'KXAPPROVAL',\n  // Companies\n  'KXAAPL', 'KXGOOG', 'KXTSLA', 'KXNVDA', 'KXMSFT',\n  // Tech & Science\n  'KXAI', 'KXTIKTOK'\n];\n\nconst path = '/trade-api/v2/markets';\nconst method = 'GET';\n\n// Generate one signed item per series\nconst items = series.map(s => {\n  const ts = Date.now().toString();\n  const msg = ts + method + path;\n  const sign = crypto.createSign('RSA-SHA256');\n  sign.update(msg);\n  sign.end();\n  const sig = sign.sign({\n    key: config.private_key_pem,\n    padding: crypto.constants.RSA_PKCS1_PSS_PADDING,\n    saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,\n  }).toString('base64');\n\n  return {\n    json: {\n      series_ticker: s,\n      api_key_id: config.api_key_id,\n      kalshi_base: config.kalshi_base,\n      timestamp: ts,\n      signature: sig,\n      claude_api_key: config.claude_api_key,\n      private_key_pem: config.private_key_pem,\n      dry_run: config.dry_run\n    }\n  };\n});\n\nreturn items;"
+      },
+      "id": "sign-series",
+      "name": "🔐 Sign Per Series",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.kalshi_base + '/markets?status=open&limit=100&series_ticker=' + $json.series_ticker }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "KALSHI-ACCESS-KEY", "value": "={{ $json.api_key_id }}" },
+            { "name": "KALSHI-ACCESS-SIGNATURE", "value": "={{ $json.signature }}" },
+            { "name": "KALSHI-ACCESS-TIMESTAMP", "value": "={{ $json.timestamp }}" }
+          ]
+        },
+        "options": {
+          "response": { "response": { "neverError": true } },
+          "batching": { "batch": { "batchSize": 5, "batchInterval": 500 } }
+        }
+      },
+      "id": "fetch-series",
+      "name": "📊 Fetch Series",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge all series + sign balance/positions\nconst crypto = require('crypto');\nconst allItems = $input.all();\nconst config = $('⚙️ Config').first().json;\nlet allMarkets = [];\n\nfor (const item of allItems) {\n  const markets = item.json.markets || [];\n  allMarkets = allMarkets.concat(markets);\n}\n\nfunction signPath(method, path) {\n  const ts = Date.now().toString();\n  const s = crypto.createSign('RSA-SHA256');\n  s.update(ts + method + path);\n  s.end();\n  return {\n    ts,\n    sig: s.sign({\n      key: config.private_key_pem,\n      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,\n      saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,\n    }).toString('base64')\n  };\n}\n\nconst balSign = signPath('GET', '/trade-api/v2/portfolio/balance');\nconst posSign = signPath('GET', '/trade-api/v2/portfolio/positions');\n\nreturn [{ json: {\n  markets: allMarkets,\n  total: allMarkets.length,\n  bal_ts: balSign.ts,\n  bal_sig: balSign.sig,\n  pos_ts: posSign.ts,\n  pos_sig: posSign.sig,\n  api_key_id: config.api_key_id\n} }];"
+      },
+      "id": "merge-markets",
+      "name": "🔀 Merge Markets",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('⚙️ Config').item.json.kalshi_base + '/portfolio/balance' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "KALSHI-ACCESS-KEY", "value": "={{ $json.api_key_id }}" },
+            { "name": "KALSHI-ACCESS-SIGNATURE", "value": "={{ $json.bal_sig }}" },
+            { "name": "KALSHI-ACCESS-TIMESTAMP", "value": "={{ $json.bal_ts }}" }
+          ]
+        },
+        "options": { "response": { "response": { "neverError": true } } }
+      },
+      "id": "get-balance-placeholder",
+      "name": "💰 Get Balance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1260, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('⚙️ Config').item.json.kalshi_base + '/portfolio/positions?limit=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "KALSHI-ACCESS-KEY", "value": "={{ $('🔀 Merge Markets').item.json.api_key_id }}" },
+            { "name": "KALSHI-ACCESS-SIGNATURE", "value": "={{ $('🔀 Merge Markets').item.json.pos_sig }}" },
+            { "name": "KALSHI-ACCESS-TIMESTAMP", "value": "={{ $('🔀 Merge Markets').item.json.pos_ts }}" }
+          ]
+        },
+        "options": { "response": { "response": { "neverError": true } } }
+      },
+      "id": "get-positions-placeholder",
+      "name": "📦 Get Positions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process + Filter all markets\nconst config = $('⚙️ Config').first().json;\nconst marketsRaw = $('🔀 Merge Markets').first().json;\nconst balanceRaw = $('💰 Get Balance').first().json;\nconst positionsRaw = $('📦 Get Positions').first().json;\n\nconst markets = marketsRaw.markets || [];\nconst balance = balanceRaw.balance || 0;\nconst positions = positionsRaw.market_positions || [];\n\nif (balance < 200) {\n  return [{ json: { ready: false, reason: `Balance: $${(balance/100).toFixed(2)} (min $2)` } }];\n}\n\nconst filtered = markets\n  .filter(m => {\n    if (m.ticker && m.ticker.includes('KXMVE')) return false;\n    if (m.mve_collection_ticker) return false;\n    if (m.is_provisional === true) return false;\n    \n    const yesAsk = parseFloat(m.yes_ask_dollars || '0');\n    if (yesAsk <= 0) return false;\n    if (yesAsk <= 0.05 || yesAsk >= 0.95) return false;\n    \n    const expTime = m.expected_expiration_time || m.close_time || m.expiration_time;\n    if (!expTime) return false;\n    const hoursToExp = (new Date(expTime) - new Date()) / 3600000;\n    if (hoursToExp <= 0 || hoursToExp > 168) return false;\n    \n    return true;\n  })\n  .sort((a, b) => parseFloat(b.volume_fp || '0') - parseFloat(a.volume_fp || '0'))\n  .slice(0, 20)\n  .map(m => ({\n    ticker: m.ticker,\n    title: m.title || m.subtitle || m.ticker,\n    category: m.category || m.event_ticker || 'unknown',\n    yes_ask: Math.round(parseFloat(m.yes_ask_dollars || '0') * 100),\n    yes_bid: Math.round(parseFloat(m.yes_bid_dollars || '0') * 100),\n    no_ask: Math.round(parseFloat(m.no_ask_dollars || '0') * 100),\n    no_bid: Math.round(parseFloat(m.no_bid_dollars || '0') * 100),\n    last_price: Math.round(parseFloat(m.last_price_dollars || '0') * 100),\n    volume: parseFloat(m.volume_fp || '0'),\n    volume_24h: parseFloat(m.volume_24h_fp || '0'),\n    open_interest: parseFloat(m.open_interest_fp || '0'),\n    close_time: m.expected_expiration_time || m.close_time,\n    spread: Math.round((parseFloat(m.yes_ask_dollars || '0') - parseFloat(m.yes_bid_dollars || '0')) * 100)\n  }));\n\nconst openExp = positions.reduce((s, p) => s + Math.abs(p.market_exposure || 0), 0);\nconst slots = 5 - positions.length;\n\nif (filtered.length === 0 || slots <= 0) {\n  return [{ json: { ready: false, reason: filtered.length === 0 ? `No markets pass filters (${markets.length} scanned)` : 'Max 5 positions' } }];\n}\n\nreturn [{\n  json: {\n    ready: true,\n    markets: filtered,\n    market_count: filtered.length,\n    total_scanned: markets.length,\n    balance_cents: balance,\n    balance_usd: (balance / 100).toFixed(2),\n    positions: positions,\n    position_count: positions.length,\n    open_exposure_cents: openExp,\n    slots_available: slots,\n    api_key_id: config.api_key_id,\n    private_key_pem: config.private_key_pem,\n    kalshi_base: config.kalshi_base,\n    dry_run: config.dry_run,\n    claude_api_key: config.claude_api_key,\n    scan_timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "process-data",
+      "name": "🔄 Process Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1740, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "ready", "leftValue": "={{ $json.ready }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "if-ready",
+      "name": "⚖️ Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1980, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst marketList = data.markets.map((m, i) => {\n  const h = m.close_time ? Math.round((new Date(m.close_time) - new Date()) / 3600000) + 'h' : '?';\n  return `[${i+1}] ${m.ticker}\\n  ${m.title}\\n  YES: ${m.yes_bid}c/${m.yes_ask}c (last ${m.last_price}c) | NO: ${m.no_bid}c/${m.no_ask}c\\n  Spread:${m.spread}c Vol:${m.volume} OI:${m.open_interest} Closes:${h}`;\n}).join('\\n\\n');\n\nconst posList = data.positions.length > 0\n  ? data.positions.map(p => `${p.ticker}: ${p.position} contracts`).join('\\n')\n  : 'None';\n\nconst avail = data.balance_cents - data.open_exposure_cents;\n\nconst prompt = `PORTFOLIO: $${data.balance_usd} | Exposure: ${data.open_exposure_cents}c | Free: ${avail}c | Positions: ${data.position_count}/5 (${data.slots_available} slots)\\n${posList}\\n\\nRULES: Max 1-2 contracts, max 50c/trade, min 10pp edge, closing <7 days\\n\\nMARKETS (${data.market_count}/${data.total_scanned}):\\n\\n${marketList}\\n\\nFind >10pp mispricings. JSON only.`;\n\nreturn [{\n  json: {\n    prompt,\n    api_key_id: data.api_key_id,\n    private_key_pem: data.private_key_pem,\n    kalshi_base: data.kalshi_base,\n    dry_run: data.dry_run,\n    claude_api_key: data.claude_api_key,\n    balance_cents: data.balance_cents,\n    scan_timestamp: data.scan_timestamp\n  }\n}];"
+      },
+      "id": "build-prompt",
+      "name": "🧠 Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $json.claude_api_key }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are an elite prediction market analyst. MICRO $10 account on Kalshi.\\n\\nPricing: contracts 1-99c, price=probability. Win=$1, Lose=$0.\\n\\nHARD RULES: Max 1-2 contracts/trade. Max 50c total/trade. Min 10pp edge. Prefer 10-35c contracts (asymmetric payoff).\\n\\nFor each market: estimate TRUE probability → compare to price → flag >10pp edge.\\n\\nJSON ONLY (no markdown):\\n{\\n  \\\"scan_summary\\\": {\\\"markets_analyzed\\\": 0, \\\"opportunities_found\\\": 0},\\n  \\\"trades\\\": [{\\n    \\\"ticker\\\": \\\"\\\", \\\"title\\\": \\\"\\\",\\n    \\\"action\\\": \\\"BUY_YES or BUY_NO\\\",\\n    \\\"market_implied_pct\\\": 0, \\\"your_estimate_pct\\\": 0, \\\"edge_pp\\\": 0,\\n    \\\"contracts\\\": 1, \\\"limit_price_cents\\\": 0, \\\"total_cost_cents\\\": 0,\\n    \\\"reasoning\\\": \\\"\\\", \\\"closes_in\\\": \\\"\\\"\\n  }],\\n  \\\"portfolio_notes\\\": \\\"\\\"\\n}\\n\\nEmpty trades if nothing qualifies. Be CONSERVATIVE.\",\n  \"messages\": [{\"role\": \"user\", \"content\": {{ JSON.stringify($json.prompt) }}}]\n}"
+      },
+      "id": "claude-call",
+      "name": "🤖 Claude Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2480, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst prev = $('🧠 Build Prompt').first().json;\n\nlet text = '';\ntry {\n  if (response.content && Array.isArray(response.content)) {\n    text = response.content.filter(c => c.type === 'text').map(c => c.text).join('');\n  }\n} catch (e) {\n  return [{ json: { execute: false, has_trades: false, error: 'Parse failed', scan_timestamp: prev.scan_timestamp, dry_run: prev.dry_run } }];\n}\n\nlet analysis;\ntry {\n  const cleaned = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  analysis = JSON.parse(cleaned);\n} catch (e) {\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  if (match) { try { analysis = JSON.parse(match[0]); } catch (e2) {} }\n}\n\nif (!analysis || !analysis.trades || analysis.trades.length === 0) {\n  return [{ json: {\n    execute: false, has_trades: false,\n    scan_summary: analysis?.scan_summary || {},\n    portfolio_notes: analysis?.portfolio_notes || 'No opportunities',\n    scan_timestamp: prev.scan_timestamp, dry_run: prev.dry_run\n  }}];\n}\n\nconst valid = analysis.trades\n  .filter(t => Math.abs(t.edge_pp) >= 10 && t.ticker)\n  .map(t => {\n    t.contracts = Math.min(t.contracts || 1, 2);\n    t.total_cost_cents = t.contracts * t.limit_price_cents;\n    if (t.total_cost_cents > 50) { t.contracts = 1; t.total_cost_cents = t.limit_price_cents; }\n    if (t.total_cost_cents > 50) return null;\n    return t;\n  })\n  .filter(Boolean);\n\nif (valid.length === 0) {\n  return [{ json: {\n    execute: false, has_trades: false,\n    scan_summary: analysis.scan_summary,\n    portfolio_notes: analysis.portfolio_notes || 'Trades failed validation',\n    scan_timestamp: prev.scan_timestamp, dry_run: prev.dry_run\n  }}];\n}\n\nconst best = valid.sort((a, b) => Math.abs(b.edge_pp) - Math.abs(a.edge_pp))[0];\nconst side = best.action === 'BUY_YES' ? 'yes' : 'no';\n\nconst orderBody = {\n  ticker: best.ticker,\n  action: 'buy',\n  side: side,\n  count: best.contracts,\n  type: 'limit',\n  client_order_id: `micro-${Date.now()}-${best.ticker.slice(-6)}`,\n  expiration_ts: Math.floor(Date.now() / 1000) + 7200\n};\nif (side === 'yes') orderBody.yes_price = best.limit_price_cents;\nelse orderBody.no_price = best.limit_price_cents;\n\nreturn [{ json: {\n  execute: !prev.dry_run,\n  has_trades: true,\n  dry_run: prev.dry_run,\n  trade: best,\n  order_body: orderBody,\n  scan_summary: analysis.scan_summary,\n  portfolio_notes: analysis.portfolio_notes,\n  api_key_id: prev.api_key_id,\n  private_key_pem: prev.private_key_pem,\n  kalshi_base: prev.kalshi_base,\n  scan_timestamp: prev.scan_timestamp\n}}];"
+      },
+      "id": "parse-decide",
+      "name": "📈 Parse & Decide",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2740, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "exec", "leftValue": "={{ $json.execute }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "if-execute",
+      "name": "🚀 Execute?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2980, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst data = $input.first().json;\nconst ts = Date.now().toString();\nconst path = '/trade-api/v2/portfolio/orders';\nconst msg = ts + 'POST' + path;\nconst sign = crypto.createSign('RSA-SHA256');\nsign.update(msg);\nsign.end();\nconst sig = sign.sign({\n  key: data.private_key_pem,\n  padding: crypto.constants.RSA_PKCS1_PSS_PADDING,\n  saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,\n}).toString('base64');\n\nreturn [{ json: { ...data, order_timestamp: ts, order_signature: sig } }];"
+      },
+      "id": "sign-order",
+      "name": "🔐 Sign Order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3220, -100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.kalshi_base + '/portfolio/orders' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "KALSHI-ACCESS-KEY", "value": "={{ $json.api_key_id }}" },
+            { "name": "KALSHI-ACCESS-SIGNATURE", "value": "={{ $json.order_signature }}" },
+            { "name": "KALSHI-ACCESS-TIMESTAMP", "value": "={{ $json.order_timestamp }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.order_body) }}"
+      },
+      "id": "place-order",
+      "name": "💰 Place Order",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3460, -100]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "url", "value": "" },
+        "sheetName": { "__rl": true, "mode": "list", "value": "" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $('📈 Parse & Decide').item.json.scan_timestamp }}",
+            "mode": "={{ $('📈 Parse & Decide').item.json.dry_run ? 'DRY_RUN' : 'LIVE' }}",
+            "ticker": "={{ $('📈 Parse & Decide').item.json.trade?.ticker || '' }}",
+            "action": "={{ $('📈 Parse & Decide').item.json.trade?.action || '' }}",
+            "contracts": "={{ $('📈 Parse & Decide').item.json.trade?.contracts || 0 }}",
+            "cost_cents": "={{ $('📈 Parse & Decide').item.json.trade?.total_cost_cents || 0 }}",
+            "edge_pp": "={{ $('📈 Parse & Decide').item.json.trade?.edge_pp || 0 }}",
+            "reasoning": "={{ $('📈 Parse & Decide').item.json.trade?.reasoning || '' }}",
+            "order_result": "={{ JSON.stringify($json).substring(0,200) }}",
+            "notes": "={{ $('📈 Parse & Decide').item.json.portfolio_notes || '' }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-trade",
+      "name": "📋 Log Trade",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [3700, -100],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "url", "value": "" },
+        "sheetName": { "__rl": true, "mode": "list", "value": "" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $json.scan_timestamp || new Date().toISOString() }}",
+            "mode": "={{ $json.dry_run ? 'DRY_RUN' : 'SCAN' }}",
+            "ticker": "={{ $json.has_trades ? ($json.trade?.ticker || '') : 'NO TRADE' }}",
+            "action": "={{ $json.has_trades ? ($json.trade?.action || '') : 'SCAN' }}",
+            "contracts": "={{ $json.trade?.contracts || 0 }}",
+            "cost_cents": "={{ $json.trade?.total_cost_cents || 0 }}",
+            "edge_pp": "={{ $json.trade?.edge_pp || '-' }}",
+            "reasoning": "={{ $json.has_trades ? ($json.trade?.reasoning || '') : ($json.portfolio_notes || 'No mispricing >10pp') }}",
+            "order_result": "={{ $json.has_trades ? 'DRY_RUN' : 'N/A' }}",
+            "notes": "={{ $json.portfolio_notes || '' }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-no-trade",
+      "name": "📋 Log Scan",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [3220, 120],
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "id": "stop",
+      "name": "⛔ Stop",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2220, 200]
+    }
+  ],
+  "connections": {
+    "⏰ Every 30 Min": { "main": [[{ "node": "⚙️ Config", "type": "main", "index": 0 }]] },
+    "▶️ Manual Test": { "main": [[{ "node": "⚙️ Config", "type": "main", "index": 0 }]] },
+    "⚙️ Config": { "main": [[{ "node": "🔐 Sign Per Series", "type": "main", "index": 0 }]] },
+    "🔐 Sign Per Series": { "main": [[{ "node": "📊 Fetch Series", "type": "main", "index": 0 }]] },
+    "📊 Fetch Series": { "main": [[{ "node": "🔀 Merge Markets", "type": "main", "index": 0 }]] },
+    "🔀 Merge Markets": { "main": [[{ "node": "💰 Get Balance", "type": "main", "index": 0 }]] },
+    "💰 Get Balance": { "main": [[{ "node": "📦 Get Positions", "type": "main", "index": 0 }]] },
+    "📦 Get Positions": { "main": [[{ "node": "🔄 Process Data", "type": "main", "index": 0 }]] },
+    "🔄 Process Data": { "main": [[{ "node": "⚖️ Ready?", "type": "main", "index": 0 }]] },
+    "⚖️ Ready?": { "main": [
+      [{ "node": "🧠 Build Prompt", "type": "main", "index": 0 }],
+      [{ "node": "⛔ Stop", "type": "main", "index": 0 }]
+    ]},
+    "🧠 Build Prompt": { "main": [[{ "node": "🤖 Claude Analysis", "type": "main", "index": 0 }]] },
+    "🤖 Claude Analysis": { "main": [[{ "node": "📈 Parse & Decide", "type": "main", "index": 0 }]] },
+    "📈 Parse & Decide": { "main": [[{ "node": "🚀 Execute?", "type": "main", "index": 0 }]] },
+    "🚀 Execute?": { "main": [
+      [{ "node": "🔐 Sign Order", "type": "main", "index": 0 }],
+      [{ "node": "📋 Log Scan", "type": "main", "index": 0 }]
+    ]},
+    "🔐 Sign Order": { "main": [[{ "node": "💰 Place Order", "type": "main", "index": 0 }]] },
+    "💰 Place Order": { "main": [[{ "node": "📋 Log Trade", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "saveManualExecutions": true },
+  "staticData": null,
+  "tags": [{ "name": "kalshi" }, { "name": "v4-multi-series" }]
+}

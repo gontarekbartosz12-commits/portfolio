@@ -41,7 +41,7 @@
 </header>
 
 <div class="note" style="background:#eef6ee;border-left-color:#2e9e5b;">
-  <b>Positioning:</b> my core priority is <b>AI &amp; automation engineering</b> (projects 1–7 below — all active works-in-progress). <b>Branded e-commerce</b> (final section) is an <b>additional income stream</b> I run in parallel, not my main focus.
+  <b>Positioning:</b> my core priority is <b>AI &amp; automation engineering</b> (projects 1–8 below — all active works-in-progress). <b>Branded e-commerce</b> (final section) is an <b>additional income stream</b> I run in parallel, not my main focus.
 </div>
 
 <div class="proj">
@@ -139,6 +139,19 @@ trader.py  → main loop   ·   monitor.py → exit logic</pre>
     <li>Folder-watcher auto-starts at login; GPU-accelerated inference; reproducible env via <code>uv</code>; model size tuned per language.</li>
   </ul>
   <p><b>Demonstrates:</b> practical ML deployment (real ASR on GPU), automation and reproducibility.</p>
+</div>
+
+<div class="proj">
+  <h2>8 · n8n Automation Workflows</h2>
+  <div class="stack">n8n · JavaScript code nodes (Node crypto) · REST/HTTP · Anthropic API · Google Sheets · schedule</div>
+  <p>A suite of <b>low-code agentic pipelines</b> built in n8n. The showcase is a <b>Kalshi micro-trading agent</b> (20+ nodes): schedule → RSA-sign requests (crypto) → fetch ~50 market series → filter → <b>Claude API analysis</b> → risk-checked decision → signed order → Google Sheets logging, with a safe <code>dry_run</code> switch.</p>
+  <ul>
+    <li><b>Custom code nodes</b> — RSA-PSS / SHA-256 request signing, JSON parsing, validation and risk rules in JS.</li>
+    <li><b>LLM-in-the-loop</b> — calls the Anthropic API and parses the model's JSON trade decision.</li>
+    <li><b>Control flow</b> — IF branching, Merge, schedule + manual triggers, append-only Sheets logging.</li>
+    <li>Plus: Kalshi multi-stage scanner/executor, a crypto scalping agent, and a Voltex lead-scraper workflow.</li>
+  </ul>
+  <p><b>Demonstrates:</b> real low-code/automation delivery — scheduling, authenticated APIs, cryptographic signing, LLM decisions and guardrails. <i>(Included workflow is sanitised — placeholder keys, dry-run on.)</i></p>
 </div>
 
 <div class="proj">
