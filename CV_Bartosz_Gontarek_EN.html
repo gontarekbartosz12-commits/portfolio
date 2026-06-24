@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bartosz Gontarek — CV</title>
+<style>
+  :root{
+    --navy:#1a3a5c; --navy2:#27557f; --ink:#1f2933; --muted:#5b6b7b;
+    --line:#d8e0e8; --bg:#ffffff; --chip:#eef3f8; --accent:#2f80c2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#f1f3f6;}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);
+       line-height:1.42;font-size:12.6px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .page{width:210mm;min-height:297mm;margin:14px auto;background:var(--bg);
+        display:grid;grid-template-columns:64mm 1fr;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  .side{background:var(--navy);color:#eaf1f8;padding:22px 18px;}
+  .side h1{font-size:23px;line-height:1.1;color:#fff;margin-bottom:4px;letter-spacing:.3px;}
+  .side .role{font-size:11.5px;color:#bcd4ea;font-weight:600;margin-bottom:14px;}
+  .side h2{font-size:10.5px;text-transform:uppercase;letter-spacing:1.2px;color:#9ec3e6;
+           margin:16px 0 6px;border-bottom:1px solid #2f5a82;padding-bottom:4px;}
+  .side p,.side li{font-size:11px;color:#dce8f4;}
+  .side a{color:#cfe2f4;text-decoration:none;word-break:break-all;}
+  .side ul{list-style:none;}
+  .side li{margin-bottom:3.5px;padding-left:12px;position:relative;}
+  .side li::before{content:"▸";position:absolute;left:0;color:#5f97c9;font-size:9px;top:2px;}
+  .contact div{margin-bottom:6px;font-size:11px;}
+  .contact .lbl{color:#9ec3e6;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;}
+  .chips span{background:#27557f;color:#dbeafc;font-size:10px;padding:2px 7px;border-radius:10px;}
+  .main{padding:22px 24px;}
+  .main h2{font-size:12.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--navy);
+           margin:14px 0 7px;display:flex;align-items:center;gap:8px;}
+  .main h2:first-child{margin-top:0;}
+  .main h2::after{content:"";flex:1;height:2px;background:var(--line);}
+  .summary{font-size:12px;color:#33414f;margin-bottom:4px;}
+  .job{margin-bottom:9px;}
+  .job .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .job .title{font-weight:700;color:var(--ink);font-size:12px;}
+  .job .org{color:var(--navy2);font-weight:600;}
+  .job .date{color:var(--muted);font-size:10.5px;white-space:nowrap;}
+  .job ul{margin:3px 0 0 16px;}
+  .job li{font-size:11.4px;color:#3a4754;margin-bottom:2px;}
+  .proj{margin-bottom:6px;font-size:11.6px;}
+  .proj b{color:var(--navy);}
+  .proj .ip{background:#fdecc8;color:#8a5a00;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700;}
+  .proj .stack{color:var(--muted);font-size:10.5px;}
+  .certs li{font-size:11.2px;margin-bottom:2.5px;}
+  .certs .v{color:var(--accent);font-size:10px;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+  .muted{color:var(--muted);font-size:10.5px;}
+  @media print{
+    html,body{background:#fff;}
+    .page{margin:0;box-shadow:none;width:auto;min-height:auto;}
+    @page{size:A4;margin:0;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="side">
+    <h1>Bartosz<br>Gontarek</h1>
+    <div class="role">AI-First Developer · E-commerce &amp; Automation Builder</div>
+
+    <h2>Contact</h2>
+    <div class="contact">
+      <div><span class="lbl">Email</span><br>gontarekbartosz12@gmail.com</div>
+      <div><span class="lbl">Phone</span><br>+48 690 269 492</div>
+      <div><span class="lbl">Location</span><br>Poland (Polish national) · Remote</div>
+    </div>
+
+    <h2>Core Stack</h2>
+    <div class="chips">
+      <span>Python</span><span>JavaScript</span><span>HTML5 Canvas</span>
+      <span>Claude Code</span><span>Cursor</span><span>Gemini</span>
+      <span>MCP</span><span>Agentic AI</span><span>REST APIs</span>
+      <span>Web3</span><span>SciPy</span><span>Whisper</span>
+      <span>WordPress</span><span>WooCommerce</span><span>Shopify</span>
+      <span>Branding</span><span>Linux VPS</span><span>Git</span><span>Postman</span>
+    </div>
+
+    <h2>AI Certificates (11)</h2>
+    <p style="font-size:10px;color:#9ec3e6;margin-bottom:5px;">Anthropic + IBM · 2026</p>
+    <ul>
+      <li>Claude Code in Action — Anthropic</li>
+      <li>MCP: Advanced Topics — Anthropic</li>
+      <li>Introduction to MCP — Anthropic</li>
+      <li>AI Fluency: Framework &amp; Foundations</li>
+      <li>Teaching the AI Fluency Framework</li>
+      <li>AI Fluency — students · educators · nonprofits</li>
+      <li>IBM SkillsBuild: AI Literacy</li>
+      <li>IBM: AI Fundamentals — Foundations</li>
+      <li>IBM: AI Fundamentals — Language &amp; Vision</li>
+    </ul>
+
+    <h2>Languages</h2>
+    <ul>
+      <li>Polish — Native</li>
+      <li>English — B2 (Matura ext. 98%)</li>
+    </ul>
+
+    <h2>Education</h2>
+    <p><b style="color:#fff;">General Secondary School</b><br>
+       LO im. W.S. Reymonta, Konstancin-Jeziorna<br>
+       <span class="muted" style="color:#9ec3e6;">2019 – 2022</span></p>
+
+    <h2>Interests</h2>
+    <ul>
+      <li>Branded e-commerce</li>
+      <li>Building AI tools &amp; agents</li>
+      <li>Algorithmic trading · Game dev</li>
+      <li>Fitness</li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <h2>Profile</h2>
+    <p class="summary">
+      Self-taught <b>AI-first builder</b>. My main focus right now is <b>freelance branded
+      e-commerce</b> — I design and ship <b>WooCommerce and Shopify</b> stores end-to-end — and
+      around that I constantly build: algorithmic trading bots, an HTML5 game, AI content pipelines
+      and automation agents. I work in an AI-first way with <b>Claude Code, Cursor and Gemini</b> and
+      use <b>Model Context Protocol (MCP)</b> to wire agents to live data. <b>11 industry AI
+      certificates</b> (8 Anthropic incl. <i>Claude Code in Action</i> &amp; <i>MCP: Advanced
+      Topics</i>; 3 IBM SkillsBuild). Several builds are works-in-progress that I push forward as time
+      allows; my steady output is e-commerce. A customer-facing sales background gives me strong
+      communication and a bias for shipping things that work.
+    </p>
+
+    <h2>Selected Projects</h2>
+    <div class="proj"><b>Branded E-commerce Stores</b> — design &amp; build online stores end-to-end (product pages, payments, logistics, brand). <span class="stack">WooCommerce · Shopify · NextCart · WordPress · branding — <i>my main, ongoing focus</i></span></div>
+    <div class="proj"><b>Polymarket Trading Bots</b> — copy-trading, AI-divergence scanner &amp; quant view-count model on prediction markets. <span class="stack">Python · Polymarket CLOB/Gamma API · Web3 · cron/VPS</span></div>
+    <div class="proj"><b>BeastBot</b> — prices YouTube-views markets via sigmoid growth-curve fitting &amp; multi-agent consensus. <span class="stack">Python · SciPy · YouTube Data API · Normal-CDF pricing</span></div>
+    <div class="proj"><b>STRONEVO</b> — my web-studio brand + offline-proof client demo sites. <span class="stack">HTML/CSS/JS · branding</span></div>
+    <div class="proj"><b>"Mrok Otchłani" ARPG</b> <span class="ip">IN PROGRESS</span> — single-file HTML5/Canvas Diablo-like, procedural pixel-art, paper-doll gear. <span class="stack">JavaScript · Canvas · 0 deps</span></div>
+    <div class="proj"><b>Mia Vex — AI persona pipeline</b> <span class="ip">IN PROGRESS</span> — image + voice generation pipeline. <span class="stack">Gemini/Vertex · ComfyUI · LoRA · RunPod</span></div>
+    <div class="proj"><b>Video Transcriber</b> — autonomous Whisper folder-watcher (video → subtitles). <span class="stack">Python · OpenAI Whisper · CUDA/GPU</span></div>
+
+    <h2>Experience</h2>
+
+    <div class="job">
+      <div class="top">
+        <div><span class="title">Freelance Developer — E-commerce &amp; Automation</span> — <span class="org">Self-employed</span></div>
+        <div class="date">2025 – present</div>
+      </div>
+      <ul>
+        <li><b>Main focus:</b> design &amp; ship branded e-commerce stores end-to-end on <b>WooCommerce and Shopify</b> (product pages, payments, InPost/logistics, policies, copy).</li>
+        <li>Deliver brand identity &amp; visual design — logos, product creatives, landing pages.</li>
+        <li>Build autonomous Python automations (trading, scraping, content) on a Linux VPS with cron + Telegram alerting.</li>
+        <li>AI-first workflow: Claude Code + MCP + agentic subagents as the primary dev environment.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="top">
+        <div><span class="title">Warehouse Operative — D2C Fulfilment</span> — <span class="org">GXO Logistics, Netherlands</span></div>
+        <div class="date">Jun – Oct 2025</div>
+      </div>
+      <ul>
+        <li>Picked &amp; packed e-commerce apparel with RF scanners; QA checks (SKU/size/colour); productivity &amp; H&amp;S targets.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="top">
+        <div><span class="title">Brand Ambassador</span> — <span class="org">British American Tobacco</span></div>
+        <div class="date">Feb – Jun 2025</div>
+      </div>
+      <ul>
+        <li>Drove product sales and loyalty sign-ups across HoReCa events; represented the brand to new customers.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="top">
+        <div><span class="title">Customer Advisor</span> — <span class="org">Chic Sp. z o.o. (Inspiration Store), Warsaw</span></div>
+        <div class="date">Sep 2024 – Feb 2025</div>
+      </div>
+      <ul>
+        <li>Retail sales at Złote Tarasy; POS, stocktakes, loyalty registration, needs-based selling.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="top">
+        <div><span class="title">Senior Sales Specialist &amp; earlier sales roles</span> — <span class="org">Viamind · BP Polska · M. Gabriel Consulting</span></div>
+        <div class="date">2022 – 2024</div>
+      </div>
+      <ul>
+        <li>KPI-driven in-store &amp; telesales; CRM + POS; e-commerce order handling (Allegro/OLX, BaseLinker, SkyShop).</li>
+      </ul>
+    </div>
+
+    <h2>Certifications</h2>
+    <ul class="certs two">
+      <li>✅ <b>Claude Code in Action</b> — Anthropic <span class="v">/c/if72ztiyp38p</span></li>
+      <li>✅ <b>MCP: Advanced Topics</b> — Anthropic <span class="v">/c/8xdbrzcy4xok</span></li>
+      <li>✅ <b>Introduction to MCP</b> — Anthropic <span class="v">/c/nuugdvuz6mdu</span></li>
+      <li>✅ <b>AI Fluency: Framework &amp; Foundations</b> — Anthropic</li>
+      <li>✅ <b>Teaching the AI Fluency Framework</b> — Anthropic</li>
+      <li>✅ <b>AI Fluency</b> — students / educators / nonprofits</li>
+      <li>✅ <b>IBM SkillsBuild: AI Literacy</b> <span class="v">credly.com/go/zJq0mS6y</span></li>
+      <li>✅ <b>IBM: AI Fundamentals — Foundations</b> <span class="v">credly.com/go/29skcRnf</span></li>
+      <li>✅ <b>IBM: AI Fundamentals — Language &amp; Vision</b> <span class="v">credly.com/go/UpNXWOmf</span></li>
+      <li>✅ Google Ads — Basic Marketing Online (2023)</li>
+    </ul>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bartosz Gontarek — Project Portfolio</title>
+<style>
+  :root{--navy:#1a3a5c;--navy2:#27557f;--ink:#21303d;--muted:#5b6b7b;--line:#d8e0e8;--chip:#eef3f8;--accent:#2f80c2;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#f1f3f6;
+       line-height:1.5;font-size:13.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .doc{max-width:200mm;margin:16px auto;background:#fff;padding:30px 34px;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  header{border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:18px;}
+  header h1{font-size:26px;color:var(--navy);}
+  header .sub{color:var(--navy2);font-weight:600;font-size:13px;margin-top:2px;}
+  .note{background:var(--chip);border-left:3px solid var(--accent);padding:8px 12px;font-size:12px;color:#3a4754;margin-top:10px;border-radius:0 4px 4px 0;}
+  .proj{margin:22px 0;padding-top:6px;border-top:1px solid var(--line);}
+  .proj h2{font-size:18px;color:var(--navy);margin-bottom:3px;}
+  .proj .stack{font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+  .proj h3{font-size:12.5px;color:var(--navy2);text-transform:uppercase;letter-spacing:.6px;margin:11px 0 4px;}
+  .proj p{margin-bottom:7px;}
+  .proj ul{margin:0 0 8px 18px;}
+  .proj li{margin-bottom:3px;}
+  b{color:var(--navy);}
+  code,pre{font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px;}
+  pre{background:#0f2235;color:#cfe2f4;padding:11px 14px;border-radius:6px;overflow:auto;margin:6px 0 10px;line-height:1.4;}
+  .tag{display:inline-block;background:#e8f0f8;color:var(--navy2);font-size:11px;padding:2px 8px;border-radius:10px;margin:2px 2px 0 0;}
+  .result{background:#eaf6ee;border-left:3px solid #2e9e5b;padding:8px 12px;font-size:12.5px;border-radius:0 4px 4px 0;margin:8px 0;}
+  .foot{margin-top:24px;padding-top:12px;border-top:2px solid var(--navy);font-size:12px;color:#3a4754;}
+  @media print{body{background:#fff;}.doc{box-shadow:none;margin:0;max-width:none;padding:14mm;}.proj{break-inside:avoid;}@page{size:A4;margin:0;}}
+</style>
+</head>
+<body>
+<div class="doc">
+<header>
+  <h1>Bartosz Gontarek — Project Portfolio</h1>
+  <div class="sub">Selected builds · 2025–2026 · AI-first development</div>
+  <div class="note">Everything below was designed and built by me using an AI-first workflow
+  (Claude Code, Cursor, Gemini) with <b>Model Context Protocol (MCP)</b> to connect agents to live data.
+  Code samples are <b>sanitised</b> — all API keys/secrets removed and replaced with environment variables.</div>
+</header>
+
+<div class="proj" style="border-top:none;">
+  <h2>★ Branded E-commerce Stores <span style="background:#fdecc8;color:#8a5a00;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">CURRENT MAIN FOCUS</span></h2>
+  <div class="stack">WordPress · WooCommerce · Shopify · NextCart/Takedrop · payments (P24/PayU) · InPost/logistics · branding &amp; product creatives</div>
+  <h3>What I do</h3>
+  <p>My steady, hands-on work: I design and ship <b>branded online stores end-to-end</b> for my own ventures and clients — not just installing a theme, but building the whole funnel: product pages and copy, payment + shipping integrations, legal pages, and the brand/visual identity around it.</p>
+  <h3>Selected builds</h3>
+  <ul>
+    <li><b>Lokse</b> — single-product WooCommerce store (fingerprint padlock), custom brand (slate + mint-LED), full product page + policies.</li>
+    <li><b>Amovo</b> — dropshipping store on NextCart/Takedrop (FreshSwap product line): product cards, regulations, privacy policy, InPost + home delivery, mentor-method funnel.</li>
+    <li><b>GhostShell</b> — e-commerce brand (anti-peep phone cases) incl. competitor research and positioning.</li>
+    <li><b>STRONEVO</b> — productised the service itself: a web-studio brand + demo sites to win store clients (see project 5).</li>
+  </ul>
+  <p><b>Demonstrates:</b> end-to-end product delivery, a real understanding of conversion and the full commerce stack (payments, logistics, compliance), and brand sensibility — directly relevant to a consumer product like Booksy. <i>This is the work I put the most consistent time into; the builds below are things I create around it.</i></p>
+</div>
+
+<div class="proj">
+  <h2>1 · Polymarket Trading Bots</h2>
+  <div class="stack">Python · Polymarket Gamma & CLOB API · Polygon/Web3 (py-clob-client) · Simmer API · Linux VPS + cron · Telegram</div>
+  <h3>The problem</h3>
+  <p>Prediction markets misprice fast-moving events. I wanted to find out, with real code and real data, whether a retail-sized account can extract an edge — and which strategies survive contact with the market.</p>
+  <h3>What I built</h3>
+  <ul>
+    <li><b>Copy-trader</b> — tracks top on-chain wallets, detects <i>new</i> positions via the Polymarket data API and mirrors them at a fixed % of balance with exposure caps.</li>
+    <li><b>AI-divergence scanner</b> — trades only when an independent AI fair-value estimate diverges from the live price by ≥10 pp.</li>
+    <li><b>BeastBot view-count model</b> — quant model for YouTube-views markets (project 2).</li>
+    <li><b>Limitless LP bot</b> — automated liquidity provision on Base chain with its own backtester + monitor.</li>
+  </ul>
+  <h3>Engineering</h3>
+  <ul>
+    <li><b>Position diffing</b> — snapshots holdings per wallet and trades only on the delta, never re-copying stale positions.</li>
+    <li><b>Risk layer</b> — copy %, min/max trade size, daily-trade and drawdown caps enforced before any order.</li>
+    <li><b>Resilience</b> — every call wrapped in timeouts + try/except; the loop self-heals so a flaky API never kills it.</li>
+  </ul>
+  <div class="result"><b>Honest result:</b> run in paper/$SIM mode first. The most valuable outcome was <i>negative</i> — by auditing <b>~3,380 on-chain trades</b> I proved naïve copy-trading is unprofitable at retail scale (≈ −$222/week on $300). That killed a bad strategy <b>before</b> risking real money and steered the project to model-driven edges.</div>
+  <p><b>Demonstrates:</b> real API + Web3 integration, risk management, and the discipline to falsify my own ideas with data.</p>
+</div>
+
+<div class="proj">
+  <h2>2 · BeastBot — quant model for YouTube-views markets</h2>
+  <div class="stack">Python 3.10+ · SciPy (sigmoid fit) · YouTube Data API v3 · Polymarket Gamma · Normal-CDF pricing · multi-agent consensus</div>
+  <h3>The edge</h3>
+  <p>Early view data follows a <b>sigmoid growth curve</b>. I fit it to project the saturation view count, convert to a bucket probability with a Normal CDF, and trade only when the market diverges from my model by ≥8 pp.</p>
+  <pre>sources/   → live views (YouTube API) + scraper fallback
+model/     → growth_curves (sigmoid) · historical baseline · bootstrap CI
+hermes/    → 3 agents (api / curve / historical) → weighted consensus
+pricer.py  → Normal CDF → bucket probabilities
+trader.py  → main loop   ·   monitor.py → exit logic</pre>
+  <ul>
+    <li><b>Calibrated uncertainty</b> — sigma widens for longer horizons (grounded in view-growth literature).</li>
+    <li><b>Consensus scoring</b> — Hermes blends three signals with explicit weights; skips low-confidence markets.</li>
+    <li><b>Secrets done right</b> — all keys via <code>os.getenv()</code>, nothing hardcoded.</li>
+  </ul>
+  <p><b>Demonstrates:</b> applied statistics/ML, clean modular architecture, research → deployable risk-bounded system.</p>
+</div>
+
+<div class="proj">
+  <h2>3 · "Mrok Otchłani" — HTML5/Canvas ARPG <span style="background:#fdecc8;color:#8a5a00;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">IN PROGRESS</span></h2>
+  <div class="stack">JavaScript (ES6) · HTML5 Canvas · zero dependencies, zero build step</div>
+  <p>A top-down Diablo-like that runs from a single HTML file: WASD + mouse aim, <b>procedurally generated pixel-art</b>, and a <b>paper-doll system</b> where equipped gear changes the character's on-screen look.</p>
+  <ul>
+    <li><b>Procedural art</b> — sprites/tiles generated in code, so the whole game is self-contained.</li>
+    <li><b>Game loop</b> — requestAnimationFrame update/render split, entity system, collisions, simple AI.</li>
+    <li>Shipped <b>v0.1 reviewed with 0 blocker bugs</b>; v2 rebuild in progress.</li>
+  </ul>
+  <p><b>Demonstrates:</b> strong vanilla-JS fundamentals, real-time rendering and game-systems design without a framework.</p>
+</div>
+
+<div class="proj">
+  <h2>4 · STRONEVO — web-studio brand & demo system</h2>
+  <div class="stack">HTML/CSS/JS · responsive design · branding</div>
+  <p>My own web-design studio brand: a catalog site plus <b>three "offline-proof" demo websites</b> — self-contained client mock-ups that render without a backend so prospects can click a real-feeling site before committing.</p>
+  <ul>
+    <li>Defined brand, identity and positioning; built catalog + responsive demo sites packaged as a deployable <code>dist/</code>.</li>
+  </ul>
+  <p><b>Demonstrates:</b> end-to-end front-end delivery, design sensibility, productising a service.</p>
+</div>
+
+<div class="proj">
+  <h2>5 · AI Agents &amp; Voice — autonomous assistants</h2>
+  <div class="stack">Python · Telegram Bot API · cron/VPS · Google Trends + Amazon · Hume Octave (voice) · MCP</div>
+  <ul>
+    <li><b>"Świstak" (Telegram assistant)</b> — unified human channel for all bots: pushes fills, daily reports, alerts; takes commands.</li>
+    <li><b>trends_scout</b> — daily 06:00 UTC agent scanning foreign product trends → Telegram + Obsidian vault, $0/month.</li>
+    <li><b>Voice synthesis</b> — character voices with Hume Octave 2; explored TTS pipelines for conversational agents.</li>
+    <li><b>MCP integrations</b> — wired the official Alpaca MCP and image-gen MCPs into agentic workflows so an agent can call live tools directly.</li>
+  </ul>
+  <p><b>Demonstrates:</b> exactly the "agentic workflows + MCP" skill set — LLMs that <i>act</i> (schedule, fetch, decide, notify), not just chat.</p>
+</div>
+
+<div class="proj">
+  <h2>6 · Mia Vex — end-to-end AI persona pipeline <span style="background:#fdecc8;color:#8a5a00;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">IN PROGRESS</span></h2>
+  <div class="stack">Gemini 3 Pro Image / Vertex AI · ComfyUI · RunPod (cloud GPU) · LoRA · Hume voice · prompt engineering</div>
+  <p>A complete, reproducible pipeline for a consistent AI character across image and voice — from a locked persona to publish-ready assets.</p>
+  <ul>
+    <li>Configured Vertex AI / Gemini image generation (GCP project, service account, org policy) and validated end-to-end.</li>
+    <li>Designed the production pipeline: LoRA character consistency on RunPod GPUs → generation → 4-step publication hygiene.</li>
+    <li>Synthesised 110+ research sources into a single A-to-Z operating compendium so the workflow is repeatable.</li>
+  </ul>
+  <p><b>Demonstrates:</b> cloud GPU orchestration, generative-AI tooling beyond chat, research-to-system rigor.</p>
+</div>
+
+<div class="proj">
+  <h2>7 · Video Transcriber — autonomous speech-to-text</h2>
+  <div class="stack">Python 3.12 · OpenAI Whisper · CUDA/GPU (RTX) · uv · Windows auto-start watcher</div>
+  <p>Drop a video in a folder → subtitles appear automatically. Prefers existing captions, falls back to <b>Whisper</b> on the GPU, writes results into Obsidian.</p>
+  <ul>
+    <li>Folder-watcher auto-starts at login; GPU-accelerated inference; reproducible env via <code>uv</code>; model size tuned per language.</li>
+  </ul>
+  <p><b>Demonstrates:</b> practical ML deployment (real ASR on GPU), automation and reproducibility.</p>
+</div>
+
+<div class="foot">
+  <b>How I work:</b> AI-first by default (Claude Code + Cursor + Gemini + MCP + subagents) · ship then prove it (paper-test &amp; audit before risking money) ·
+  environment-based secrets, never hardcoded · self-documenting projects + Obsidian knowledge base.<br><br>
+  <b>Certified (2026):</b> <i>Anthropic</i> — Claude Code in Action · MCP: Advanced Topics · Introduction to MCP · AI Fluency (Framework &amp; Foundations, students, educators, nonprofits, Teaching the Framework). <i>IBM SkillsBuild</i> — AI Literacy · AI Fundamentals (Foundations · Language &amp; Vision). <b>11 certificates total.</b>
+</div>
+</div>
+</body>
+</html>
