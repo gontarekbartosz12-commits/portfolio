@@ -1,7 +1,7 @@
 # Bartosz Gontarek
 **AI-First Developer · Automation Builder**
 
-📧 gontarekbartosz12@gmail.com · 📱 +48 690 269 492 · 📍 Poland (Polish national) · Remote-ready
+📧 gontarekbartosz12@gmail.com · 📱 +48 530 558 853 · 📍 Poland (Polish national) · Remote-ready
 🔗 Portfolio: github.com/gontarekbartosz12-commits/portfolio · 🌐 Live site: **stronevo.pl**
 
 ---
