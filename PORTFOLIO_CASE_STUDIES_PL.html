@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bartosz Gontarek — Portfolio projektów</title>
+<style>
+  :root{--navy:#1a3a5c;--navy2:#27557f;--ink:#21303d;--muted:#5b6b7b;--line:#d8e0e8;--chip:#eef3f8;--accent:#2f80c2;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#f1f3f6;
+       line-height:1.5;font-size:13.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .doc{max-width:200mm;margin:16px auto;background:#fff;padding:30px 34px;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  header{border-bottom:3px solid var(--navy);padding-bottom:12px;margin-bottom:18px;}
+  header h1{font-size:26px;color:var(--navy);}
+  header .sub{color:var(--navy2);font-weight:600;font-size:13px;margin-top:2px;}
+  header .gh{font-size:12.5px;margin-top:6px;}
+  header .gh a{color:var(--accent);font-weight:600;text-decoration:none;}
+  .note{background:var(--chip);border-left:3px solid var(--accent);padding:8px 12px;font-size:12px;color:#3a4754;margin-top:10px;border-radius:0 4px 4px 0;}
+  .proj{margin:22px 0;padding-top:6px;border-top:1px solid var(--line);}
+  .proj h2{font-size:18px;color:var(--navy);margin-bottom:3px;}
+  .proj .stack{font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+  .proj h3{font-size:12.5px;color:var(--navy2);text-transform:uppercase;letter-spacing:.6px;margin:11px 0 4px;}
+  .proj p{margin-bottom:7px;}
+  .proj ul{margin:0 0 8px 18px;}
+  .proj li{margin-bottom:3px;}
+  b{color:var(--navy);}
+  code,pre{font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px;}
+  pre{background:#0f2235;color:#cfe2f4;padding:11px 14px;border-radius:6px;overflow:auto;margin:6px 0 10px;line-height:1.4;}
+  .result{background:#eaf6ee;border-left:3px solid #2e9e5b;padding:8px 12px;font-size:12.5px;border-radius:0 4px 4px 0;margin:8px 0;}
+  .foot{margin-top:24px;padding-top:12px;border-top:2px solid var(--navy);font-size:12px;color:#3a4754;}
+  @media print{body{background:#fff;}.doc{box-shadow:none;margin:0;max-width:none;padding:14mm;}.proj{break-inside:avoid;}@page{size:A4;margin:0;}}
+</style>
+</head>
+<body>
+<div class="doc">
+<header>
+  <h1>Bartosz Gontarek — Portfolio projektów</h1>
+  <div class="sub">Wybrane realizacje · 2025–2026 · praca AI-first</div>
+  <div class="gh">🔗 GitHub: <a href="https://github.com/gontarekbartosz12-commits/portfolio">github.com/gontarekbartosz12-commits/portfolio</a></div>
+  <div class="note">Wszystko poniżej zaprojektowałem i zbudowałem samodzielnie w podejściu AI-first
+  (Claude Code, Cursor, Gemini), używając <b>Model Context Protocol (MCP)</b> do podłączania agentów
+  do danych na żywo. Fragmenty kodu są <b>oczyszczone</b> — wszystkie klucze API i sekrety usunięte i
+  zastąpione zmiennymi środowiskowymi.</div>
+</header>
+
+<div class="note" style="background:#eef6ee;border-left-color:#2e9e5b;">
+  <b>Pozycjonowanie:</b> moim głównym priorytetem jest <b>inżynieria AI i automatyzacji</b> (projekty 1–10 poniżej — wszystkie aktywne, w toku). <b>Branded e-commerce</b> (ostatnia sekcja) to <b>dodatkowe źródło dochodu</b>, które prowadzę równolegle, nie główny fokus.
+</div>
+
+<div class="proj">
+  <h2>1 · Boty tradingowe Polymarket</h2>
+  <div class="stack">Python · Polymarket Gamma & CLOB API · Polygon/Web3 (py-clob-client) · Simmer API · Linux VPS + cron · Telegram</div>
+  <h3>Problem</h3>
+  <p>Rynki predykcyjne źle wyceniają szybko zmieniające się wydarzenia. Chciałem sprawdzić — realnym kodem na realnych danych — czy konto detaliczne jest w stanie wypracować przewagę i które strategie przetrwają zderzenie z rynkiem.</p>
+  <h3>Co zbudowałem</h3>
+  <ul>
+    <li><b>Copy-trader</b> — śledzi czołowe portfele on-chain, wykrywa <i>nowe</i> pozycje przez data API Polymarket i kopiuje je jako % salda, z limitami ekspozycji.</li>
+    <li><b>Skaner dywergencji AI</b> — handluje tylko, gdy niezależna wycena AI rozjeżdża się z ceną rynkową o ≥10 pp.</li>
+    <li><b>Model wyświetleń BeastBot</b> — model ilościowy dla rynków YouTube (projekt 2).</li>
+    <li><b>Bot LP Limitless</b> — automatyczne dostarczanie płynności na łańcuchu Base z własnym backtesterem i monitorem.</li>
+  </ul>
+  <h3>Inżynieria</h3>
+  <ul>
+    <li><b>Diffowanie pozycji</b> — robi snapshot stanu portfela i reaguje tylko na deltę (nowa pozycja), nigdy nie kopiuje starych.</li>
+    <li><b>Warstwa ryzyka</b> — % kopiowania, min/max rozmiar transakcji, limity dzienne i obsunięcia egzekwowane przed każdym zleceniem.</li>
+    <li><b>Odporność</b> — każde wywołanie sieciowe ma timeouty + try/except; pętla sama się leczy, więc niestabilne API nigdy jej nie zabija.</li>
+  </ul>
+  <div class="result"><b>Uczciwy wynik:</b> najpierw tryb paper/$SIM. Najcenniejszy efekt był <i>negatywny</i> — audytując <b>~3 380 transakcji on-chain</b> udowodniłem, że naiwny copy-trading jest na skalę detaliczną nieopłacalny (≈ −222 $/tydz. przy 300 $). To zabiło złą strategię <b>zanim</b> zaryzykowałem realny kapitał i skierowało projekt na przewagi oparte na modelach.</div>
+  <p><b>Pokazuje:</b> realne integracje API + Web3, zarządzanie ryzykiem i dyscyplinę falsyfikowania własnych pomysłów danymi.</p>
+</div>
+
+<div class="proj">
+  <h2>2 · BeastBot — model ilościowy rynków wyświetleń YouTube</h2>
+  <div class="stack">Python 3.10+ · SciPy (dopasowanie sigmoidy) · YouTube Data API v3 · Polymarket Gamma · wycena rozkładem normalnym · konsensus wielu agentów</div>
+  <h3>Przewaga</h3>
+  <p>Wczesne dane o wyświetleniach (T+6h…T+24h) układają się w <b>krzywą sigmoidalną</b>. Dopasowuję ją, projektuję wysycenie wyświetleń, zamieniam na prawdopodobieństwo bucketu rozkładem normalnym i handluję tylko, gdy rynek rozjeżdża się z modelem o ≥8 pp.</p>
+  <pre>sources/   → wyświetlenia na żywo (YouTube API) + scraper zapasowy
+model/     → growth_curves (sigmoida) · baseline historyczny · bootstrap CI
+hermes/    → 3 agentów (api / krzywa / historia) → ważony konsensus
+pricer.py  → rozkład normalny → prawdopodobieństwa bucketów
+trader.py  → główna pętla   ·   monitor.py → logika wyjścia</pre>
+  <ul>
+    <li><b>Skalibrowana niepewność</b> — sigma rośnie dla dłuższych horyzontów (na bazie literatury o wzroście wyświetleń).</li>
+    <li><b>Konsensus</b> — Hermes miesza trzy sygnały z jawnymi wagami; pomija rynki o niskiej pewności.</li>
+    <li><b>Czyste sekrety</b> — każdy klucz przez <code>os.getenv()</code>, nic na sztywno.</li>
+  </ul>
+  <p><b>Pokazuje:</b> stosowaną statystykę/ML, czystą architekturę modułową i przejście od pomysłu badawczego do wdrażalnego, ograniczonego ryzykiem systemu.</p>
+</div>
+
+<div class="proj">
+  <h2>3 · „Mrok Otchłani" — ARPG w HTML5/Canvas <span style="background:#fdecc8;color:#8a5a00;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">W TOKU</span></h2>
+  <div class="stack">JavaScript (ES6) · HTML5 Canvas · zero zależności, zero build stepu</div>
+  <p>Top-down Diablo-like uruchamiany z jednego pliku HTML: ruch WASD + celowanie myszą, <b>proceduralnie generowany pixel-art</b> i <b>system paper-doll</b>, w którym założony ekwipunek zmienia wygląd postaci.</p>
+  <ul>
+    <li><b>Proceduralna grafika</b> — sprite'y i kafle generowane w kodzie, cała gra jest samowystarczalna.</li>
+    <li><b>Pętla gry</b> — podział update/render na requestAnimationFrame, system encji, kolizje, proste AI.</li>
+    <li>Wydane <b>v0.1, recenzja z 0 blokerów</b>; trwa przebudowa v2.</li>
+  </ul>
+  <p><b>Pokazuje:</b> mocne podstawy vanilla-JS, rendering w czasie rzeczywistym i projektowanie systemów gry bez frameworka.</p>
+</div>
+
+<div class="proj">
+  <h2>4 · STRONEVO — marka studia WWW i system dem <span style="background:#eaf6ee;color:#2e7d46;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">LIVE</span></h2>
+  <div class="stack">HTML/CSS/JS · responsywność · branding · <b>live: stronevo.pl</b></div>
+  <div class="result">🌐 Wdrożone i działa na <b><a href="https://stronevo.pl">stronevo.pl</a></b> — realna strona studia („Strony internetowe i sklepy — Warszawa, Piaseczno").</div>
+  <p>Moja własna marka studia projektowania stron: strona-katalog plus <b>trzy „offline-proof" strony demo</b> — samowystarczalne makiety, które renderują się bez backendu, żeby klient mógł kliknąć realnie wyglądającą stronę przed decyzją.</p>
+  <ul>
+    <li>Zdefiniowanie marki i pozycjonowania; build katalogu + responsywnych dem jako gotowy do hostingu <code>dist/</code>.</li>
+  </ul>
+  <p><b>Pokazuje:</b> dowożenie front-endu end-to-end, wyczucie designu i uproduktowienie usługi.</p>
+</div>
+
+<div class="proj">
+  <h2>5 · Agenci AI i głos — autonomiczni asystenci</h2>
+  <div class="stack">Python · Telegram Bot API · cron/VPS · Google Trends + Amazon · Hume Octave (głos) · MCP</div>
+  <ul>
+    <li><b>„Świstak" (asystent Telegram)</b> — wspólny kanał wszystkich botów: wysyła egzekucje, raporty dzienne, alerty; przyjmuje komendy.</li>
+    <li><b>trends_scout</b> — codzienny agent (06:00 UTC) skanujący zagraniczne trendy produktowe → Telegram + vault Obsidian, 0 zł/mc.</li>
+    <li><b>Synteza głosu</b> — głosy postaci w Hume Octave 2; eksploracja pipeline'ów TTS dla agentów konwersacyjnych.</li>
+    <li><b>Integracje MCP</b> — podpięcie oficjalnego Alpaca MCP i MCP do generacji obrazów, by agent mógł wołać narzędzia na żywo.</li>
+  </ul>
+  <p><b>Pokazuje:</b> dokładnie zestaw „workflowy agentowe + MCP" — LLM-y, które <i>działają</i> (planują, pobierają, decydują, powiadamiają), a nie tylko rozmawiają.</p>
+</div>
+
+<div class="proj">
+  <h2>6 · Mia Vex — pipeline persony i contentu AI <span style="background:#fdecc8;color:#8a5a00;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">W TOKU</span></h2>
+  <div class="stack">Gemini 3 Pro Image / Vertex AI · ComfyUI · RunPod (GPU w chmurze) · LoRA · głos Hume · prompt engineering</div>
+  <p>Kompletny, powtarzalny pipeline generujący spójną postać AI w obrazie i głosie — od zablokowanej persony do gotowych do publikacji assetów.</p>
+  <ul>
+    <li>Konfiguracja generacji obrazów Vertex AI / Gemini (projekt GCP, service account, org policy) i walidacja end-to-end.</li>
+    <li>Pipeline produkcyjny: spójność postaci LoRA na GPU RunPod → generacja → 4-stopniowa higiena publikacji.</li>
+    <li>Synteza 110+ źródeł w jedno operacyjne „kompendium" A-Z, żeby workflow był powtarzalny.</li>
+  </ul>
+  <p><b>Pokazuje:</b> orkiestrację GPU w chmurze, narzędzia generatywnej AI poza czatem i rygor research → system.</p>
+</div>
+
+<div class="proj">
+  <h2>7 · Video Transcriber — autonomiczne speech-to-text</h2>
+  <div class="stack">Python 3.12 · OpenAI Whisper · CUDA/GPU (RTX) · uv · auto-start watcher na Windows</div>
+  <p>Wrzuć wideo do śledzonego folderu → napisy pojawiają się automatycznie. Najpierw istniejące napisy, w razie czego <b>Whisper</b> na GPU, wynik do Obsidian.</p>
+  <ul>
+    <li>Watcher folderu startuje przy logowaniu; inferencja na GPU; powtarzalne środowisko przez <code>uv</code>; model dobrany pod język.</li>
+  </ul>
+  <p><b>Pokazuje:</b> praktyczne wdrożenie ML (realny ASR na GPU), automatyzację i powtarzalność.</p>
+</div>
+
+<div class="proj">
+  <h2>8 · Workflowy automatyzacji n8n</h2>
+  <div class="stack">n8n · JavaScript (code nodes, Node crypto) · REST/HTTP · Anthropic API · Google Sheets · schedule</div>
+  <p>Zestaw <b>low-code'owych pipeline'ów agentowych</b> w n8n. Flagowy to <b>agent micro-trading Kalshi</b> (20+ węzłów): schedule → podpis RSA żądań (crypto) → pobranie ~50 serii rynków → filtr → <b>analiza przez Claude API</b> → decyzja z limitami ryzyka → podpisane zlecenie → log do Google Sheets, z bezpiecznym przełącznikiem <code>dry_run</code>.</p>
+  <ul>
+    <li><b>Własne code nodes</b> — podpisywanie żądań RSA-PSS / SHA-256, parsowanie JSON, walidacja i reguły ryzyka w JS.</li>
+    <li><b>LLM-in-the-loop</b> — wywołanie Anthropic API i parsowanie decyzji modelu w JSON.</li>
+    <li><b>Sterowanie przepływem</b> — IF, Merge, triggery schedule + manual, append-only log do Sheets.</li>
+    <li>Plus: scanner/executor Kalshi (multi-stage), agent scalpingu crypto i scraper leadów Voltex.</li>
+  </ul>
+  <p><b>Pokazuje:</b> realne dowożenie automatyzacji low-code — harmonogramy, uwierzytelnione API, kryptografia, decyzje LLM i zabezpieczenia. <i>(Załączony workflow jest oczyszczony — klucze-placeholdery, dry-run włączony.)</i></p>
+</div>
+
+<div class="proj">
+  <h2>9 · Alpaca Stock Trader — bot Lumibot + Alpaca MCP</h2>
+  <div class="stack">Python · Lumibot · Alpaca API (paper) · Model Context Protocol · systemd · pytest</div>
+  <p>Automatyczny <b>bot paper-trading akcji USA</b> na Alpaca, plus wariant AI, w którym LLM składa zlecenia przez <b>oficjalny Alpaca MCP</b> — uproduktowiony, nie notebook.</p>
+  <ul>
+    <li><b>Strategia</b> — ConservativeV1: RSI + Bollinger + filtr trendu SMA50/200, z testami jednostkowymi czystej logiki.</li>
+    <li><b>Ops</b> — usługa systemd (limity zasobów + hardening), idempotentny 8-fazowy deploy, smoke-test po wdrożeniu (auth, zlecenia, pozycje, Telegram).</li>
+    <li><b>Integracja MCP</b> — Claude odpytuje konto i składa zlecenia przez narzędzia Alpaca MCP; paper-first.</li>
+  </ul>
+  <p><b>Pokazuje:</b> uproduktowioną infrastrukturę tradingową + dokładnie tę umiejętność agentic/MCP, której wymaga rola, na realnym API brokera. <i>(Tylko paper; sekrety ze zmiennych środowiskowych.)</i></p>
+</div>
+
+<div class="proj">
+  <h2>10 · Tradebot — backtest swing-momentum</h2>
+  <div class="stack">Python · vectorbt · pandas · yfinance · Jupyter</div>
+  <p>Rygorystyczny backtest zbudowany, by zdecydować, <b>czy w ogóle warto budować bota produkcyjnego</b> — z jawnymi bramkami, które powiedziały „jeszcze nie". I to zdyscyplinowane „nie" jest tu sednem.</p>
+  <ul>
+    <li><b>Metoda</b> — momentum kompozytowe + filtr ADX/SMA, wejścia bez look-ahead, trailing stop ATR, 5 bps poślizgu, <b>walidacja walk-forward</b> (6 foldów).</li>
+    <li><b>Bramki decyzyjne</b> — Sharpe ≥ 0,5, max obsunięcie ≤ 15%, walk-forward Sharpe ≥ 0,3, ≥ 150 transakcji — fail dowolnej → nie wdrażaj.</li>
+    <li><b>Uczciwość</b> — otwarcie dokumentuje biasy survivorship i look-ahead oraz ich mitygacje.</li>
+  </ul>
+  <p><b>Pokazuje:</b> quant-rygor i decyzje oparte na dowodach — dojrzałość, by <i>nie</i> wdrożyć stratnej strategii.</p>
+</div>
+
+<div class="proj">
+  <h2>★ Strony i branded e-commerce <span style="background:#e8f0f8;color:#27557f;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;vertical-align:middle;">DODATKOWE ŹRÓDŁO DOCHODU</span></h2>
+  <div class="stack">WordPress · WooCommerce · Shopify · NextCart/Takedrop · płatności (P24/PayU) · InPost/logistyka · branding</div>
+  <p>Obok pracy nad AI projektuję i dowożę <b>brandowane sklepy online end-to-end</b> — cały lejek: karty produktów i copy, integracje płatności i wysyłki, strony prawne oraz identyfikacja wizualna. To <b>dodatkowy, równoległy dochód</b> — finansuje budowanie AI, które jest moim głównym fokusem.</p>
+  <h3>Realizacje</h3>
+  <ul>
+    <li><b>STRONEVO</b> — moja marka studia WWW, <b>live na <a href="https://stronevo.pl">stronevo.pl</a></b> + offline-proof strony demo do pozyskiwania klientów <i>(aktywne)</i>.</li>
+    <li><b>Balustrady (strona klienta)</b> — pełny pakiet WordPress dla firmy balustradowej: 10 podstron, mega-menu, szablon produktowy, galeria realizacji z filtrowaniem, formularz wyceny, unikalne SEO + schema dla każdej strony, tracking GA4/Pixel <i>(zbudowane, gotowe do wdrożenia)</i>.</li>
+    <li><b>Amovo</b> — sklep dropshippingowy na NextCart/Takedrop (linia FreshSwap): karty, regulaminy, InPost + dostawa do domu <i>(aktywne)</i>.</li>
+    <li><b>Lokse</b> — jednoproduktowy sklep WooCommerce (kłódka na odcisk palca), własny branding.</li>
+    <li><b>GhostShell</b> — <i>była marka</i> (etui anti-peep), już nieaktywna.</li>
+  </ul>
+  <p><b>Pokazuje:</b> dowożenie produktu end-to-end, konwersję i pełny stack e-commerce (płatności, logistyka, compliance) oraz wyczucie marki.</p>
+</div>
+
+<div class="foot">
+  <b>Jak pracuję:</b> AI-first domyślnie (Claude Code + Cursor + Gemini + MCP + sub-agenci) · najpierw dowieź, potem udowodnij (paper-test i audyt przed ryzykowaniem pieniędzy) ·
+  sekrety w zmiennych środowiskowych, nigdy na sztywno · samodokumentujące się projekty + baza wiedzy w Obsidian.<br><br>
+  <b>Certyfikaty (2026) — 11 sztuk:</b> <i>Anthropic</i> — Claude Code in Action · MCP: Advanced Topics · Introduction to MCP · AI Fluency (Framework &amp; Foundations, students, educators, nonprofits, Teaching the Framework). <i>IBM SkillsBuild</i> — AI Literacy · AI Fundamentals (Foundations · Language &amp; Vision).
+</div>
+</div>
+</body>
+</html>

@@ -1,6 +1,8 @@
 # Bartosz Gontarek — Project Portfolio
 ### Selected builds · 2025–2026 · AI-first development
 
+🔗 **GitHub:** https://github.com/gontarekbartosz12-commits/portfolio
+
 > Everything below was designed and built by me using an AI-first workflow
 > (Claude Code, Cursor, Gemini) with Model Context Protocol (MCP) to connect
 > agents to live data. Code samples in this portfolio are **sanitised** — all

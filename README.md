@@ -11,6 +11,8 @@ case studies plus sanitised source code for 13 projects.
 portfolio/
 ├── PORTFOLIO_CASE_STUDIES_EN.html   ← detailed project case studies (printable → PDF)
 ├── PORTFOLIO_CASE_STUDIES_EN.md     ← same, Markdown
+├── PORTFOLIO_CASE_STUDIES_PL.html   ← Polish version (→ PDF)
+├── PORTFOLIO_CASE_STUDIES_PL.md     ← same, Markdown
 ├── certificates/                    ← 11 AI certificates (Anthropic + IBM) + verify links
 └── projects/
     ├── 01-polymarket-trading-bot/   ← sanitised Python (copytrader, ai_divergence)
