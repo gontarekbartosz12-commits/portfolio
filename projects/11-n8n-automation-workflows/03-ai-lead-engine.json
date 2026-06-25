@@ -1,0 +1,165 @@
+{
+  "name": "AI Lead Engine — kwalifikacja leadów",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-engine",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "666fa7b3-8dd6-4477-8135-6485175b1665",
+      "name": "Formularz - nowy lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 288],
+      "webhookId": "df857d2c-051f-49ba-9b3c-7b20b69b65fc"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "imie", "value": "={{ $json.body?.name ?? $json.name ?? \"Klient\" }}", "type": "string" },
+            { "id": "a2", "name": "email", "value": "={{ $json.body?.email ?? $json.email ?? \"\" }}", "type": "string" },
+            { "id": "a3", "name": "telefon", "value": "={{ $json.body?.phone ?? $json.phone ?? \"\" }}", "type": "string" },
+            { "id": "a4", "name": "wiadomosc", "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "94403aab-3ce8-4a07-8ef5-0c0837a3b399",
+      "name": "Normalizuj dane",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [224, 288]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Zgloszenie z formularza:\nImie: {{ $json.imie }}\nE-mail: {{ $json.email }}\nTelefon: {{ $json.telefon }}\nWiadomosc: {{ $json.wiadomosc }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Jestes asystentem kwalifikacji leadow dla firmy swiadczacej uslugi: strony WWW, automatyzacje AI, SEO, branding.\nOtrzymujesz zgloszenie z formularza kontaktowego. Wykonaj:\n1) Ocen lead w skali 0-100 (score) na podstawie konkretnosci potrzeby, intencji zakupowej, pilnosci i dopasowania do uslug.\n2) Przypisz kategorie: \"goracy\" gdy score >= 70, \"cieply\" gdy 40-69, \"zimny\" gdy < 40.\n3) Okresl intencje klienta jednym zdaniem oraz najbardziej prawdopodobna usluge (usluga).\n4) Napisz krotkie podsumowanie dla wlasciciela (podsumowanie, 1-2 zdania).\n5) Napisz gotowa, uprzejma, spersonalizowana odpowiedz e-mail do klienta po polsku (odpowiedz_do_klienta): nawiaz do jego konkretnej sprawy, potwierdz ze sie odezwiemy, zaproponuj krotka rozmowe. Nie zmyslaj cen ani szczegolow technicznych.\n6) Dodaj pole uzasadnienie - krotko czemu taki score.\nBadz konsekwentny i zwiezly. Odpowiadaj wylacznie w wymaganym formacie JSON."
+        }
+      },
+      "id": "8bd77e90-0d61-4e74-98dd-92eeae0808f5",
+      "name": "Agent AI - kwalifikacja",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [448, 288]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "mode": "list", "value": "gpt-5-mini" },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "b1e82d4f-8c7b-49e5-adeb-cbb6f2b7ed69",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [464, 512]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{ \"score\": 82, \"kategoria\": \"goracy\", \"intencja\": \"Chce strone z rezerwacja online\", \"usluga\": \"Projektowanie witryn internetowych\", \"podsumowanie\": \"Salon chce strone z rezerwacja online, pilne.\", \"odpowiedz_do_klienta\": \"Dzien dobry, dziekuje za wiadomosc...\", \"uzasadnienie\": \"Konkretna potrzeba + pilnosc\" }"
+      },
+      "id": "17617cfa-36fc-4663-a264-2db429781dc9",
+      "name": "Format JSON",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [592, 512]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": { "__rl": true, "mode": "id", "value": "REPLACE_WITH_YOUR_DATATABLE_ID" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "imie": "={{ $('Normalizuj dane').item.json.imie }}",
+            "email": "={{ $('Normalizuj dane').item.json.email }}",
+            "telefon": "={{ $('Normalizuj dane').item.json.telefon }}",
+            "wiadomosc": "={{ $('Normalizuj dane').item.json.wiadomosc }}",
+            "usluga": "={{ $json.output.usluga }}",
+            "score": "={{ $json.output.score }}",
+            "kategoria": "={{ $json.output.kategoria }}",
+            "intencja": "={{ $json.output.intencja }}",
+            "podsumowanie": "={{ $json.output.podsumowanie }}"
+          },
+          "schema": [
+            { "id": "imie", "displayName": "imie", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "email", "displayName": "email", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "telefon", "displayName": "telefon", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "wiadomosc", "displayName": "wiadomosc", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "usluga", "displayName": "usluga", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "score", "displayName": "score", "required": false, "defaultMatch": false, "display": true, "type": "number", "canBeUsedToMatch": true },
+            { "id": "kategoria", "displayName": "kategoria", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "intencja", "displayName": "intencja", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "podsumowanie", "displayName": "podsumowanie", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a19aab81-009d-4ae9-b0d0-8e7300bbd0c9",
+      "name": "Zapis do CRM",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [800, 0]
+    },
+    {
+      "parameters": {
+        "sendTo": "twoj-email@example.com",
+        "subject": "={{ $json.output.kategoria === \"goracy\" ? \"GORACY LEAD\" : \"Nowy lead\" }} - {{ $(\"Normalizuj dane\").item.json.imie }} ({{ $json.output.score }}/100)",
+        "emailType": "text",
+        "message": "=Nowy lead z formularza\n\nImie: {{ $(\"Normalizuj dane\").item.json.imie }}\nE-mail: {{ $(\"Normalizuj dane\").item.json.email }}\nTelefon: {{ $(\"Normalizuj dane\").item.json.telefon }}\n\nScore: {{ $json.output.score }}/100  ({{ $json.output.kategoria }})\nIntencja: {{ $json.output.intencja }}\nUsluga: {{ $json.output.usluga }}\n\nPodsumowanie: {{ $json.output.podsumowanie }}\n\nWiadomosc klienta:\n{{ $(\"Normalizuj dane\").item.json.wiadomosc }}\n\n--- Odpowiedz wyslana automatycznie do klienta:\n{{ $json.output.odpowiedz_do_klienta }}",
+        "options": { "appendAttribution": false }
+      },
+      "id": "bd372437-b62f-43ef-8636-5a090d55bf43",
+      "name": "Alert do wlasciciela",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [800, 192],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $(\"Normalizuj dane\").item.json.email }}",
+        "subject": "=Dziekujemy za wiadomosc, {{ $(\"Normalizuj dane\").item.json.imie }} - odezwiemy sie wkrotce",
+        "emailType": "text",
+        "message": "={{ $json.output.odpowiedz_do_klienta }}",
+        "options": { "appendAttribution": false }
+      },
+      "id": "6d4a0394-b668-4a65-b870-2d9f2c988f08",
+      "name": "Odpowiedz do klienta",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [800, 384],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"status\": \"ok\", \"message\": \"Dziekujemy! Odezwiemy sie wkrotce.\" }",
+        "options": {}
+      },
+      "id": "149676a3-8658-4a23-835f-67e3e07dbbb0",
+      "name": "Odpowiedz na formularz",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [800, 576]
+    }
+  ],
+  "connections": {
+    "Formularz - nowy lead": { "main": [[{ "node": "Normalizuj dane", "type": "main", "index": 0 }]] },
+    "Normalizuj dane": { "main": [[{ "node": "Agent AI - kwalifikacja", "type": "main", "index": 0 }]] },
+    "Agent AI - kwalifikacja": { "main": [[{ "node": "Zapis do CRM", "type": "main", "index": 0 }, { "node": "Alert do wlasciciela", "type": "main", "index": 0 }, { "node": "Odpowiedz do klienta", "type": "main", "index": 0 }, { "node": "Odpowiedz na formularz", "type": "main", "index": 0 }]] },
+    "OpenAI Chat Model": { "ai_languageModel": [[{ "node": "Agent AI - kwalifikacja", "type": "ai_languageModel", "index": 0 }]] },
+    "Format JSON": { "ai_outputParser": [[{ "node": "Agent AI - kwalifikacja", "type": "ai_outputParser", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

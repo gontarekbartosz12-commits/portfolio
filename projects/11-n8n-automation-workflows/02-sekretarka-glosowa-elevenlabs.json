@@ -1,0 +1,113 @@
+{
+  "name": "Sekretarka głosowa — Salon (ElevenLabs + Google Calendar)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "salon-glos-rezerwacja",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "990f9882-dade-41cf-87c8-e9269ac33d6f",
+      "name": "ElevenLabs Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 96],
+      "webhookId": "21044b14-107d-48a1-8abd-1654b5f34bf0"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const items=$input.all();const b=(items[0].json.body)||items[0].json||{};const s=(b.service||'').toString().toLowerCase();let duration=30;if(s.includes('kolor'))duration=120;else if(s.includes('damsk'))duration=60;else if(s.includes('model')||s.includes('uklad')||s.includes('układ'))duration=45;const name=(b.name||'').toString().trim();const phone=(b.phone||b.telefon||'').toString().trim();const service=(b.service||'').toString().trim();const startISO=b.start||b.datetime||b.date;const startDate=new Date(startISO);const ok=!isNaN(startDate.getTime());const endDate=ok?new Date(startDate.getTime()+duration*60000):null;return [{json:{valid:ok,name:name,service:service,phone:phone,durationMinutes:duration,start:ok?startDate.toISOString():null,end:ok?endDate.toISOString():null,summary:service+(name?' — '+name:''),description:'Rezerwacja glosowa (ElevenLabs). Usluga: '+service+(name?' | Klient: '+name:'')+(phone?' | Telefon: '+phone:'')}}];"
+      },
+      "id": "4d152d56-2929-42b0-a73f-858689c3a80a",
+      "name": "Przygotuj dane",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 96]
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "operation": "availability",
+        "calendar": { "__rl": true, "mode": "list", "value": "primary", "cachedResultName": "primary" },
+        "timeMin": "={{ $json.start }}",
+        "timeMax": "={{ $json.end }}",
+        "options": { "outputFormat": "availability" }
+      },
+      "id": "ca3b8c39-ea04-48cf-9cd9-115a574028e9",
+      "name": "Sprawdź dostępność",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [448, 96]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 2 },
+          "conditions": [
+            { "id": "avail", "leftValue": "={{ $json.available }}", "rightValue": "", "operator": { "type": "boolean", "operation": "true", "singleValue": true } }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "cd8a2992-ba21-4135-a93a-adc46022f1f4",
+      "name": "Czy termin wolny?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [672, 96]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": { "__rl": true, "mode": "list", "value": "primary", "cachedResultName": "primary" },
+        "start": "={{ $('Przygotuj dane').item.json.start }}",
+        "end": "={{ $('Przygotuj dane').item.json.end }}",
+        "additionalFields": {
+          "summary": "={{ $('Przygotuj dane').item.json.summary }}",
+          "description": "={{ $('Przygotuj dane').item.json.description }}"
+        }
+      },
+      "id": "5aadb27c-a380-4a14-b000-089aff13d2b7",
+      "name": "Utwórz wizytę",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [896, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": { "status": "booked", "message": "=Zarezerwowano: {{ $json.summary }} ({{ $json.start.dateTime }}). Link: {{ $json.htmlLink }}" },
+        "options": {}
+      },
+      "id": "105877c3-8ddd-458e-9c7a-1dc08db8f087",
+      "name": "Odpowiedz: zarezerwowano",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [1120, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": { "status": "busy", "message": "Ten termin jest juz zajety. Zaproponuj klientowi inny termin w godzinach otwarcia." },
+        "options": {}
+      },
+      "id": "f039fedb-1aa4-4e69-bb43-9a855e80a725",
+      "name": "Odpowiedz: zajęte",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [896, 192]
+    }
+  ],
+  "connections": {
+    "ElevenLabs Webhook": { "main": [[{ "node": "Przygotuj dane", "type": "main", "index": 0 }]] },
+    "Przygotuj dane": { "main": [[{ "node": "Sprawdź dostępność", "type": "main", "index": 0 }]] },
+    "Sprawdź dostępność": { "main": [[{ "node": "Czy termin wolny?", "type": "main", "index": 0 }]] },
+    "Czy termin wolny?": { "main": [[{ "node": "Utwórz wizytę", "type": "main", "index": 0 }], [{ "node": "Odpowiedz: zajęte", "type": "main", "index": 0 }]] },
+    "Utwórz wizytę": { "main": [[{ "node": "Odpowiedz: zarezerwowano", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

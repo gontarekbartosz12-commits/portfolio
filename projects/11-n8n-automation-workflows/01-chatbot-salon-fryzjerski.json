@@ -1,0 +1,98 @@
+{
+  "name": "Chatbot rezerwacji — Salon fryzjerski (OpenAI + Google Calendar)",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Cześć! 👋 Pomogę umówić wizytę w salonie. Jaką usługę i kiedy planujesz?",
+        "options": {
+          "inputPlaceholder": "Np. strzyżenie męskie w czwartek o 15:00",
+          "subtitle": "Umów wizytę online — odpowiadam 24/7.",
+          "title": "Rezerwacje — Salon",
+          "responseMode": "streaming"
+        }
+      },
+      "id": "32120d1d-865e-4c17-95e7-5caaee2a0879",
+      "name": "Chat Trigger (Widget)",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [0, 112],
+      "webhookId": "46842972-f282-4a3a-8e6b-6e795be5801d"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Jesteś uprzejmą recepcjonistką salonu fryzjerskiego \"Salon Przykładowy\" (Warszawa). Mówisz po polsku, zwięźle i konkretnie. Twój cel: SPRAWNIE umówić wizytę i realnie zapisać ją w kalendarzu.\n\nUSŁUGI (czas trwania / cena):\n- Strzyżenie damskie — 60 min — 120 zł\n- Strzyżenie męskie — 30 min — 60 zł\n- Strzyżenie dziecięce — 30 min — 50 zł\n- Koloryzacja — 120 min — od 250 zł\n- Modelowanie/układanie — 45 min — 90 zł\n\nGODZINY OTWARCIA: pon–pt 9:00–19:00, sob 9:00–15:00, niedziela nieczynne. Strefa czasu: Europe/Warsaw.\n\nPROCES REZERWACJI:\n1) Potrzebujesz tylko: USŁUGI, IMIENIA klienta i TERMINU (data + godzina). Dopytuj wyłącznie o to, czego naprawdę brakuje.\n2) Koniec wizyty = start + czas trwania usługi.\n3) Sprawdź termin narzędziem \"Sprawdź dostępność\" (czas w ISO 8601 z offsetem +02:00).\n4) Jeśli termin jest wolny — NIE proś o dodatkowe potwierdzenie ani o numer telefonu. OD RAZU utwórz wizytę narzędziem \"Umów wizytę\" (w tytule: usługa + imię). Telefon jest opcjonalny i możesz o niego poprosić DOPIERO po zapisaniu wizyty.\n5) Jeśli termin jest zajęty lub poza godzinami otwarcia — zaproponuj najbliższy wolny termin.\n6) Dopiero PO faktycznym utworzeniu wizyty (gdy narzędzie zwróci sukces) napisz potwierdzenie: usługa, data, godzina, cena. NIE twierdź, że wizyta jest zarezerwowana, zanim narzędzie \"Umów wizytę\" jej nie utworzy.\n\nZASADY: nie wymyślaj usług, cen ani terminów spoza listy. Nie umawiaj poza godzinami otwarcia. Działaj zdecydowanie — sukcesem jest realnie zapisana wizyta w kalendarzu."
+        }
+      },
+      "id": "3ccde59d-2545-4f78-a62e-f45176da6414",
+      "name": "Recepcjonistka AI",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [352, 112]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "mode": "list", "value": "gpt-5-mini", "cachedResultName": "gpt-5-mini" },
+        "builtInTools": {},
+        "options": {},
+        "responsesApiEnabled": true
+      },
+      "id": "54b58290-d2ad-4e0a-90a5-ba51badff619",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [224, 336]
+    },
+    {
+      "parameters": { "contextWindowLength": 12 },
+      "id": "6d6ebfdc-b513-4da2-a919-6f37789961d2",
+      "name": "Pamięć rozmowy",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [352, 336]
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": { "__rl": true, "mode": "list", "value": "primary", "cachedResultName": "primary" },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('start_time', 'Początek sprawdzanego przedziału w ISO 8601 z offsetem Europe/Warsaw, np. 2026-06-26T14:00:00+02:00') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end_time', 'Koniec przedziału = start + czas trwania usługi, w ISO 8601 z offsetem, np. 2026-06-26T14:30:00+02:00') }}",
+        "options": { "outputFormat": "availability" },
+        "operation": "availability"
+      },
+      "id": "3d06a9c4-a072-4b7d-a18e-1091bb470bac",
+      "name": "Sprawdź dostępność",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [480, 336]
+    },
+    {
+      "parameters": {
+        "calendar": { "__rl": true, "mode": "list", "value": "primary", "cachedResultName": "primary" },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('start_time', 'Początek wizyty w ISO 8601 z offsetem Europe/Warsaw, np. 2026-06-26T14:00:00+02:00') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end_time', 'Koniec wizyty = start + czas trwania usługi, ISO 8601 z offsetem') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('details', 'Szczegóły: usługa, imię i telefon klienta') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', 'Tytuł wizyty: usługa + imię klienta, np. Strzyżenie męskie — Jan') }}"
+        },
+        "resource": "event",
+        "operation": "create"
+      },
+      "id": "fd8ae841-655e-4388-b32f-02d3beac1c20",
+      "name": "Umów wizytę",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [608, 336]
+    }
+  ],
+  "connections": {
+    "Chat Trigger (Widget)": { "main": [[{ "node": "Recepcjonistka AI", "type": "main", "index": 0 }]] },
+    "OpenAI Chat Model": { "ai_languageModel": [[{ "node": "Recepcjonistka AI", "type": "ai_languageModel", "index": 0 }]] },
+    "Pamięć rozmowy": { "ai_memory": [[{ "node": "Recepcjonistka AI", "type": "ai_memory", "index": 0 }]] },
+    "Sprawdź dostępność": { "ai_tool": [[{ "node": "Recepcjonistka AI", "type": "ai_tool", "index": 0 }]] },
+    "Umów wizytę": { "ai_tool": [[{ "node": "Recepcjonistka AI", "type": "ai_tool", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

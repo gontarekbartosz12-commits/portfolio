@@ -1,14 +1,41 @@
 # n8n Automation Workflows — low-code agentic pipelines
 
-A suite of **n8n** workflows I built to automate trading research, execution and lead
-generation — combining HTTP APIs, custom code nodes, branching logic, an LLM
-decision step and Google Sheets logging.
+A suite of **n8n** workflows I built and tested end-to-end — from production **AI agents,
+an autonomous lead pipeline and a RAG assistant with evaluation**, to trading research /
+execution and lead generation. They combine AI Agents, structured outputs, RAG, HTTP/REST
+APIs, custom code nodes, branching logic and persistence.
 
-> The included `kalshi-micro-agent-v4.json` is **sanitised**: all credentials are
-> placeholders (`TUTAJ_KEY_ID`, `TUTAJ_KLUCZ_PEM`, `TUTAJ_CLAUDE_KEY`) and it ships with
-> `dry_run: true`. No real keys.
+> All workflows are **sanitised**: credentials are placeholders or referenced by name,
+> never included. Trading flows ship with `dry_run: true`.
 
-## ⭐ Showcase: Kalshi Micro-Agent v4 (multi-series)
+## ⭐ Featured (2026): production AI agents, an autonomous pipeline & RAG
+
+Four AI automations built and tested live with **Claude Code + the n8n MCP**. Dedicated
+repo with README + architecture diagram:
+**https://github.com/gontarekbartosz12-commits/n8n-ai-automation-portfolio** — all
+exported here as importable JSON.
+
+- **`01-chatbot-salon-fryzjerski.json` — Booking chatbot.** OpenAI agent with tool-calling
+  + conversation memory, integrated with Google Calendar (checks availability, books the
+  appointment). Embeddable web widget.
+- **`02-sekretarka-glosowa-elevenlabs.json` — Voice-agent backend.** Webhook for an
+  ElevenLabs voice agent → validates/normalises data → Google Calendar availability +
+  booking → structured reply.
+- **`03-ai-lead-engine.json` — Autonomous lead pipeline.** Webhook → LLM with **structured
+  JSON output** (lead scoring 0–100, intent, category) → conditional routing → CRM (n8n
+  Data Table) + auto-generated personalized email. *Tested live: hot lead scored 85/100,
+  CRM row written, both emails sent in ~22 s.*
+- **`04-rag-eval-asystent-wiedzy.json` — RAG with evaluation.** OpenAI embeddings →
+  in-memory vector store → top-k retrieval → grounded answer → **LLM-as-judge** scoring
+  faithfulness / relevance / hallucination-risk (structured output). *Tested live: top
+  chunk cosine 0.74, faithfulness 1.0.*
+
+### What these demonstrate
+AI Agents (tool-calling, memory), **structured outputs**, decision routing, **RAG
+(embeddings + retrieval + grounding)**, **LLM evaluation** (faithfulness / hallucination),
+webhooks/APIs, data persistence and multi-channel side-effects.
+
+## Also: Kalshi Micro-Agent v4 (agentic trading)
 An end-to-end **agentic trading pipeline** on the Kalshi prediction market — 20+ nodes:
 
 ```
