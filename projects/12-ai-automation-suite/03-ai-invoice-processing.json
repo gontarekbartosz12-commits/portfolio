@@ -1,0 +1,556 @@
+{
+  "name": "AI Document / Invoice Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Invoice Intake",
+        "formDescription": "Upload a PDF invoice. It will be read, validated and filed automatically.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Invoice File",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "62a71ee4-fbe9-4a3a-9dab-1e307a20b065",
+      "name": "Upload Invoice",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        128,
+        320
+      ],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Invoice_File",
+        "options": {
+          "joinPages": true
+        }
+      },
+      "id": "b56a3eee-3488-47b0-ae5d-e8a97b1766bd",
+      "name": "PDF to Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "txt",
+              "leftValue": "={{ $json.text }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a6fd10fa-5476-4a22-bb5d-09cdeccc84a8",
+      "name": "Text Extracted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract the invoice fields from this document text:\n\n{{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an invoice data extraction engine. Extract the fields exactly as they appear. Use null for anything missing. Numbers must be numeric (no currency symbols). Return JSON."
+        }
+      },
+      "id": "82aa5393-a75e-4b9d-989d-eb914fa10e72",
+      "name": "Extract Invoice Data",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        832,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "fe7beb75-5b0a-4466-ab1d-d9d0f5bf2d43",
+      "name": "Extraction Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        832,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"vendor\":\"Acme Sp. z o.o.\",\"invoiceNumber\":\"FV/2026/001\",\"invoiceDate\":\"2026-06-01\",\"dueDate\":\"2026-06-15\",\"currency\":\"PLN\",\"subtotal\":1000,\"tax\":230,\"total\":1230,\"lineItems\":[{\"description\":\"Consulting service\",\"amount\":1000}]}"
+      },
+      "id": "bfad3a6b-a4bd-444d-a29a-f8b9579fd3b8",
+      "name": "Invoice Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const inv = $json.output || {};\nconst issues = [];\nif (!inv.vendor) issues.push(\"Missing vendor\");\nif (!inv.invoiceNumber) issues.push(\"Missing invoice number\");\nif (inv.total == null) issues.push(\"Missing total\");\nconst sub = Number(inv.subtotal) || 0;\nconst tax = Number(inv.tax) || 0;\nconst total = Number(inv.total) || 0;\nif (total && Math.abs((sub + tax) - total) > 0.5) issues.push(\"Total does not match subtotal + tax\");\nif (total >= 5000) issues.push(\"High-value invoice (>= 5000) requires approval\");\nconst needsReview = issues.length > 0;\nreturn { json: { vendor: inv.vendor || \"\", invoiceNumber: inv.invoiceNumber || \"\", invoiceDate: inv.invoiceDate || \"\", dueDate: inv.dueDate || \"\", currency: inv.currency || \"\", subtotal: sub, tax: tax, total: total, issues: issues.length ? issues.join(\"; \") : \"none\", needsReview: needsReview, status: needsReview ? \"needs-review\" : \"auto-approved\", processedAt: new Date().toISOString() } };"
+      },
+      "id": "a35b0831-0923-4eca-af32-bd0660cb6625",
+      "name": "Validate Invoice",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "rev",
+              "leftValue": "={{ $json.needsReview }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "rightValue": true
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "78f4c651-7ef4-4661-9e93-42e3f72b7496",
+      "name": "Needs Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1328,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "gontarekbartosz12@gmail.com",
+        "subject": "=Approve invoice {{ $json.invoiceNumber }} from {{ $json.vendor }}?",
+        "message": "=Invoice flagged for review.\nVendor: {{ $json.vendor }}\nNumber: {{ $json.invoiceNumber }}\nTotal: {{ $json.total }} {{ $json.currency }}\nIssues: {{ $json.issues }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Approve & file",
+            "disapproveLabel": "Reject"
+          }
+        },
+        "options": {}
+      },
+      "id": "238de071-e902-4251-9d76-5570c7596488",
+      "name": "Request Approval",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        224
+      ],
+      "executeOnce": true,
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DATA_TABLE_ID",
+          "cachedResultName": "Your Data Table"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "vendor": "={{ $(\"Validate Invoice\").item.json.vendor }}",
+            "invoiceNumber": "={{ $(\"Validate Invoice\").item.json.invoiceNumber }}",
+            "invoiceDate": "={{ $(\"Validate Invoice\").item.json.invoiceDate }}",
+            "currency": "={{ $(\"Validate Invoice\").item.json.currency }}",
+            "total": "={{ $(\"Validate Invoice\").item.json.total }}",
+            "status": "={{ $(\"Request Approval\").item.json.data.approved ? \"human-approved\" : \"rejected\" }}",
+            "issues": "={{ $(\"Validate Invoice\").item.json.issues }}",
+            "processedAt": "={{ $(\"Validate Invoice\").item.json.processedAt }}"
+          },
+          "schema": [
+            {
+              "id": "vendor",
+              "displayName": "vendor",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiceNumber",
+              "displayName": "invoiceNumber",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiceDate",
+              "displayName": "invoiceDate",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total",
+              "displayName": "total",
+              "type": "number",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issues",
+              "displayName": "issues",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processedAt",
+              "displayName": "processedAt",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d5faf4f5-f350-4498-835e-1e1fd60da867",
+      "name": "File Reviewed Invoice",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DATA_TABLE_ID",
+          "cachedResultName": "Your Data Table"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "vendor": "={{ $json.vendor }}",
+            "invoiceNumber": "={{ $json.invoiceNumber }}",
+            "invoiceDate": "={{ $json.invoiceDate }}",
+            "currency": "={{ $json.currency }}",
+            "total": "={{ $json.total }}",
+            "status": "={{ $json.status }}",
+            "issues": "={{ $json.issues }}",
+            "processedAt": "={{ $json.processedAt }}"
+          },
+          "schema": [
+            {
+              "id": "vendor",
+              "displayName": "vendor",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiceNumber",
+              "displayName": "invoiceNumber",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoiceDate",
+              "displayName": "invoiceDate",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total",
+              "displayName": "total",
+              "type": "number",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issues",
+              "displayName": "issues",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processedAt",
+              "displayName": "processedAt",
+              "type": "string",
+              "required": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ecde8d99-c7b9-48a3-9a82-c9eb423d583e",
+      "name": "File Invoice",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "gontarekbartosz12@gmail.com",
+        "subject": "Invoice needs manual review (no extractable text)",
+        "emailType": "text",
+        "message": "An uploaded invoice produced no extractable text (likely a scanned image). Please review it manually or route it to an OCR service.",
+        "options": {}
+      },
+      "id": "e4a1569b-8cfa-4dfe-b96b-c6b54502aeb3",
+      "name": "Flag for Manual OCR",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        528
+      ],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "content": "## AI Document / Invoice Processing\nForm upload -> Extract from PDF -> empty-text fallback to manual OCR -> AI structured extraction -> validation & anomaly checks -> high-confidence auto-files to a Data Table; flagged invoices route to a human approval email before filing.",
+        "height": 200,
+        "width": 520,
+        "color": 3
+      },
+      "id": "d8ab7585-9be0-4800-83ef-f3424effbd70",
+      "name": "Sticky Note 6feddba3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        48
+      ]
+    }
+  ],
+  "connections": {
+    "Upload Invoice": {
+      "main": [
+        [
+          {
+            "node": "PDF to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF to Text": {
+      "main": [
+        [
+          {
+            "node": "Text Extracted?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Extracted?": {
+      "main": [
+        [
+          {
+            "node": "Extract Invoice Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag for Manual OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Invoice Data": {
+      "main": [
+        [
+          {
+            "node": "Validate Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraction Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Invoice Data",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Invoice Data",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Invoice": {
+      "main": [
+        [
+          {
+            "node": "Needs Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Review?": {
+      "main": [
+        [
+          {
+            "node": "Request Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Approval": {
+      "main": [
+        [
+          {
+            "node": "File Reviewed Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
+  },
+  "meta": {}
+}

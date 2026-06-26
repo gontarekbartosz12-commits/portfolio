@@ -1,0 +1,708 @@
+{
+  "name": "Customer Support AI Agent (RAG + HITL)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-ticket",
+        "options": {}
+      },
+      "id": "08924633-5f66-4ace-8869-626f675d253d",
+      "name": "Support Ticket In",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        128,
+        320
+      ],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ $json.body?.email ?? $json.email ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "name": "subject",
+              "value": "={{ $json.body?.subject ?? $json.subject ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b12b6e05-0a05-49ab-b1f6-4597e8ee5c66",
+      "name": "Normalize Ticket",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify this support ticket.\nSubject: {{ $json.subject }}\nMessage: {{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a support triage assistant. Classify category (billing, shipping, returns, technical, account, other), urgency (low, medium, high) and sentiment. Return JSON."
+        }
+      },
+      "id": "b82c1de2-d9cd-44ec-aea6-5c173462fd69",
+      "name": "Classify Ticket",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "38e3f586-2fed-4dac-904b-f7ab4a15fff2",
+      "name": "Classifier Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"category\":\"billing\",\"urgency\":\"high\",\"sentiment\":\"frustrated\"}"
+      },
+      "id": "03b27e4b-7a17-48fc-aca9-d1d76a7f1d55",
+      "name": "Triage Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n{json:{source:\"Refund Policy\",text:\"Refunds: customers can request a full refund within 30 days of delivery. Orders that arrive more than 7 days late qualify for a full refund or a 20% discount voucher.\"}},\n{json:{source:\"Shipping Policy\",text:\"Standard shipping takes 3-5 business days. Delays beyond 7 days are eligible for compensation under the Refund Policy.\"}},\n{json:{source:\"Returns Policy\",text:\"Returns: items can be returned within 30 days in original condition. Return shipping is free for defective items, otherwise paid by the customer.\"}},\n{json:{source:\"Warranty Policy\",text:\"All products include a 12-month warranty covering manufacturing defects. Warranty claims require an order number and photos.\"}},\n{json:{source:\"Account Help\",text:\"Password resets are done via the Forgot Password link. Account data deletion requests are handled within 14 days.\"}},\n{json:{source:\"Support Hours\",text:\"Human support is available Monday to Friday, 9:00-17:00 CET. Outside these hours, replies may be delayed.\"}}\n];"
+      },
+      "id": "3a0fee8a-e220-4a37-93de-390491a1e95e",
+      "name": "Knowledge Base",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "support_kb",
+          "cachedResultName": "support_kb"
+        },
+        "clearStore": true
+      },
+      "id": "03cc417f-4ee2-4368-b91e-27e6586f081d",
+      "name": "Index Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "af2a9b7e-aeb6-4045-ad14-b9c8394924ae",
+      "name": "KB Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.text }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "source",
+                "value": "={{ $json.source }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "349751dc-0ede-4c71-b965-bfe9f18fb160",
+      "name": "KB Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m",
+              "name": "message",
+              "value": "={{ $(\"Normalize Ticket\").item.json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "s",
+              "name": "subject",
+              "value": "={{ $(\"Normalize Ticket\").item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "e",
+              "name": "email",
+              "value": "={{ $(\"Normalize Ticket\").item.json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "c",
+              "name": "category",
+              "value": "={{ $(\"Classify Ticket\").item.json.output.category }}",
+              "type": "string"
+            },
+            {
+              "id": "u",
+              "name": "urgency",
+              "value": "={{ $(\"Classify Ticket\").item.json.output.urgency }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "02c18689-19e3-4e83-9e10-3a54a9244ece",
+      "name": "Build Query",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        320
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "support_kb",
+          "cachedResultName": "support_kb"
+        },
+        "prompt": "={{ $json.message }}",
+        "topK": 3
+      },
+      "id": "9a94ad2e-78fc-49e7-8161-a188634e2f7e",
+      "name": "Retrieve Context",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        1568,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "dc247826-1dd1-4590-9b17-f83576ae4084",
+      "name": "Query Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1504,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "context",
+        "options": {}
+      },
+      "id": "9673c492-b0a9-455e-938d-53cea8aea202",
+      "name": "Combine Context",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Customer ticket:\nSubject: {{ $(\"Build Query\").item.json.subject }}\nMessage: {{ $(\"Build Query\").item.json.message }}\nCategory: {{ $(\"Build Query\").item.json.category }}\n\nRelevant knowledge base context (JSON):\n{{ JSON.stringify($json.context) }}\n\nWrite a helpful, empathetic support reply grounded ONLY in the context above. Cite the relevant policy by name. If the context does not cover the question, do not invent an answer - state that you will escalate to a human agent.",
+        "options": {
+          "systemMessage": "You are a senior customer support agent. Be concise, warm and accurate. Never invent policies."
+        }
+      },
+      "id": "e11606df-ef5e-47a0-a0bc-657b532de59e",
+      "name": "Draft Reply",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1968,
+        320
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "3ff245c2-6738-4168-996f-cfbf5c97ed38",
+      "name": "Drafting Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1840,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evaluate this support reply for faithfulness to the provided knowledge context.\n\nContext:\n{{ JSON.stringify($(\"Combine Context\").item.json.context) }}\n\nDraft reply:\n{{ $json.output }}\n\nReturn confidence (0-1), faithfulness (0-1), approve (true only if fully grounded and helpful), and a short reason.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a strict QA evaluator (LLM-as-judge). Penalize any claim not supported by the context. Return JSON."
+        }
+      },
+      "id": "ba9b1b45-d12f-4816-8892-6a2035d86c01",
+      "name": "Evaluate Reply",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2160,
+        320
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "62a8e6c9-a970-4de6-9842-a7cb2f950c53",
+      "name": "Evaluator Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2128,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"confidence\":0.86,\"faithfulness\":0.9,\"approve\":true,\"reason\":\"Reply is grounded in the refund policy\"}"
+      },
+      "id": "72a367a9-9574-4080-b4c0-0329c4ef66f3",
+      "name": "Eval Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "appr",
+              "leftValue": "={{ $json.output.approve }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "rightValue": true
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e641551e-1ae3-4db4-be51-19140719d35a",
+      "name": "Approved by Judge?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2400,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $(\"Build Query\").item.json.email }}",
+        "subject": "=Re: {{ $(\"Build Query\").item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $(\"Draft Reply\").item.json.output }}",
+        "options": {}
+      },
+      "id": "b4920532-0a91-4088-adfa-f745829de7fc",
+      "name": "Send Auto-Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2624,
+        224
+      ],
+      "executeOnce": true,
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "gontarekbartosz12@gmail.com",
+        "subject": "=Approve support reply? [{{ $(\"Build Query\").item.json.category }} / {{ $(\"Build Query\").item.json.urgency }}]",
+        "message": "=Ticket from {{ $(\"Build Query\").item.json.email }}:\n{{ $(\"Build Query\").item.json.message }}\n\n--- Draft reply (confidence {{ $json.output.confidence }}) ---\n{{ $(\"Draft Reply\").item.json.output }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Send reply",
+            "disapproveLabel": "Reject"
+          }
+        },
+        "options": {}
+      },
+      "id": "f567a307-8720-4bd9-8ac7-5619c71c0540",
+      "name": "Request Human Approval",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2624,
+        448
+      ],
+      "executeOnce": true,
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $(\"Build Query\").item.json.email }}",
+        "subject": "=Re: {{ $(\"Build Query\").item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $(\"Draft Reply\").item.json.output }}",
+        "options": {}
+      },
+      "id": "1ca4cd3b-e71a-482a-9bd8-cac401463cff",
+      "name": "Send Approved Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2848,
+        448
+      ],
+      "executeOnce": true,
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "content": "## Customer Support AI Agent (RAG + Human-in-the-Loop)\nTriage -> self-contained RAG over a policy KB (in-memory vector store) -> grounded draft -> LLM-as-judge confidence score. High confidence auto-sends; low confidence routes to a human approval email before sending.",
+        "height": 200,
+        "width": 520,
+        "color": 5
+      },
+      "id": "7cce0c0d-6ba2-46ae-a53d-956c0852a940",
+      "name": "Sticky Note 2f384d0c",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        80
+      ]
+    }
+  ],
+  "connections": {
+    "Support Ticket In": {
+      "main": [
+        [
+          {
+            "node": "Normalize Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Ticket": {
+      "main": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Ticket": {
+      "main": [
+        [
+          {
+            "node": "Knowledge Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triage Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge Base": {
+      "main": [
+        [
+          {
+            "node": "Index Knowledge Base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Index Knowledge Base": {
+      "main": [
+        [
+          {
+            "node": "Build Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Index Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Index Knowledge Base",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Query": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Context": {
+      "main": [
+        [
+          {
+            "node": "Combine Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve Context",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Context": {
+      "main": [
+        [
+          {
+            "node": "Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drafting Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Reply": {
+      "main": [
+        [
+          {
+            "node": "Approved by Judge?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluator Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Evaluate Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eval Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Evaluate Reply",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Human Approval": {
+      "main": [
+        [
+          {
+            "node": "Send Approved Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved by Judge?": {
+      "main": [
+        [
+          {
+            "node": "Send Auto-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Request Human Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
+  },
+  "meta": {}
+}

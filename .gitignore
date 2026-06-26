@@ -30,3 +30,8 @@ CV_Bartosz_Gontarek_EN.pdf
 CV_Bartosz_Gontarek_PL.html
 CV_Bartosz_Gontarek_PL.md
 CV_Bartosz_Gontarek_PL.pdf
+
+# CV with spaces in filename + any CV/personal PDF - never public (phone/email)
+CV Bartosz Gontarek EN.pdf
+CV*.pdf
+*Gontarek*.pdf

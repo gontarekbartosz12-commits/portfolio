@@ -1,0 +1,306 @@
+{
+  "name": "Smart Inbox Triage & Auto-Draft",
+  "nodes": [
+    {
+      "id": "f4a77323-474f-4795-a3c3-5e37ef16da7a",
+      "name": "New Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        120,
+        320
+      ],
+      "parameters": {
+        "simple": false,
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "4b03239c-ac20-4cb3-98b6-e49e670d3192",
+      "name": "Normalize Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        320
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f",
+              "name": "from",
+              "value": "={{ $json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "s",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "b",
+              "name": "body",
+              "value": "={{ $json.text ?? $json.snippet ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "t",
+              "name": "threadId",
+              "value": "={{ $json.threadId }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "644898b1-c59a-4b8b-b8df-82ec942dd13d",
+      "name": "Classify Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        320
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify this email.\nFrom: {{ $json.from }}\nSubject: {{ $json.subject }}\nBody:\n{{ $json.body }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an executive assistant. Classify category (client, lead, invoice, newsletter, personal, spam, other), priority (low, medium, high), whether it needs a reply, and a one-line summary. Return JSON."
+        }
+      }
+    },
+    {
+      "id": "308dd911-48cd-4227-b19f-8d7f96bcd4f7",
+      "name": "Classifier Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        120
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "0024e5a2-6d7f-4d83-8b09-3fecaae9f24a",
+      "name": "Triage Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        120
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"category\":\"client\",\"priority\":\"high\",\"needsReply\":true,\"summary\":\"Client asking about project timeline\"}"
+      }
+    },
+    {
+      "id": "b0af9539-930b-4b66-a970-ea33ac424176",
+      "name": "Needs Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        820,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "nr",
+              "leftValue": "={{ $json.output.needsReply }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "rightValue": true
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "a753d311-47e4-4693-aa9a-20ad0da456c0",
+      "name": "Draft Reply",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1060,
+        220
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a helpful, professional reply to this email. Keep it concise and friendly.\n\nFrom: {{ $(\"Normalize Email\").item.json.from }}\nSubject: {{ $(\"Normalize Email\").item.json.subject }}\nBody:\n{{ $(\"Normalize Email\").item.json.body }}\n\nContext: {{ $json.output.summary }} (priority: {{ $json.output.priority }})",
+        "options": {
+          "systemMessage": "You are the user assistant drafting email replies on their behalf. Write a ready-to-send reply. Do not invent facts you do not have - if information is missing, ask for it politely."
+        }
+      }
+    },
+    {
+      "id": "87e721f3-9583-4ab3-a33d-3696afd1a1c7",
+      "name": "Drafting Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        120
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "7091ea1a-d0c0-49bd-9a5c-b1734d9b39f5",
+      "name": "Create Gmail Draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        220
+      ],
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "=Re: {{ $(\"Normalize Email\").item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "sendTo": "={{ $(\"Normalize Email\").item.json.from }}",
+          "threadId": "={{ $(\"Normalize Email\").item.json.threadId }}"
+        }
+      },
+      "webhookId": ""
+    },
+    {
+      "id": "b0edb1d7-6e24-4965-8013-488f21c60114",
+      "name": "Sticky Note fee1b13a",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        70,
+        270
+      ],
+      "parameters": {
+        "content": "## Smart Inbox Triage & Auto-Draft\nNew email -> AI classifies category, priority and whether it needs a reply (structured output) -> if a reply is needed, an AI agent drafts it and saves a Gmail draft in the same thread for you to review and send. Safe by design: it never auto-sends.",
+        "color": 5,
+        "width": 520,
+        "height": 200
+      }
+    }
+  ],
+  "connections": {
+    "New Email": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email": {
+      "main": [
+        [
+          {
+            "node": "Classify Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Email": {
+      "main": [
+        [
+          {
+            "node": "Needs Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triage Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Email",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Reply?": {
+      "main": [
+        [
+          {
+            "node": "Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Create Gmail Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drafting Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "meta": {}
+}

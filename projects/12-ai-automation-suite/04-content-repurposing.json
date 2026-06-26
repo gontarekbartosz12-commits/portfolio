@@ -1,0 +1,347 @@
+{
+  "name": "Content Repurposing Machine",
+  "nodes": [
+    {
+      "id": "aafc2942-a274-4833-9576-3561afe7e1e6",
+      "name": "Content Intake",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        120,
+        300
+      ],
+      "parameters": {
+        "formTitle": "Content Repurposing Machine",
+        "formDescription": "Paste any long-form content (blog, transcript, notes). Get a full multi-platform content pack by email.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Content",
+              "fieldType": "textarea",
+              "placeholder": "Paste your long-form content here...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Brand Voice",
+              "fieldType": "text",
+              "placeholder": "e.g. professional but witty",
+              "requiredField": false
+            }
+          ]
+        }
+      },
+      "webhookId": ""
+    },
+    {
+      "id": "aefd2e87-d980-421a-847a-1020d2b014ef",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c",
+              "name": "content",
+              "value": "={{ $json.Content ?? $json.content ?? $json.body?.content }}",
+              "type": "string"
+            },
+            {
+              "id": "v",
+              "name": "brandVoice",
+              "value": "={{ $json[\"Brand Voice\"] ?? $json.brandVoice ?? \"clear, helpful and engaging\" }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a16ff6d4-9d42-44fd-a116-c8d7d7dcb3bd",
+      "name": "Extract Core",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract the core of this content:\n\n{{ $json.content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a content strategist. Distill the content into a headline, 3-5 key points, and 3 scroll-stopping hooks. Return JSON."
+        }
+      }
+    },
+    {
+      "id": "ffbd0a18-d02f-40e6-9608-c79eb6e4d2bc",
+      "name": "Core Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        540,
+        120
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "47601e27-a587-4871-bd06-78d88bfefe5e",
+      "name": "Core Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        700,
+        120
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"headline\":\"A punchy headline\",\"keyPoints\":[\"point 1\",\"point 2\",\"point 3\"],\"hooks\":[\"scroll-stopping hook 1\",\"hook 2\",\"hook 3\"]}"
+      }
+    },
+    {
+      "id": "67fd0f32-6f94-41a5-a5a7-c1dd51198caa",
+      "name": "Repurpose to Platforms",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        820,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Repurpose this content into platform-native posts.\n\nBrand voice: {{ $(\"Normalize Input\").item.json.brandVoice }}\n\nCore (JSON):\n{{ JSON.stringify($json.output) }}\n\nOriginal content:\n{{ $(\"Normalize Input\").item.json.content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert social media copywriter. Produce a Twitter/X thread (array of tweets, each under 280 chars), a LinkedIn post, an Instagram caption with hashtags, a YouTube description, and a newsletter section. Match the brand voice. Return JSON."
+        }
+      }
+    },
+    {
+      "id": "77666ba0-ebd6-4327-b7d3-9147120eea2e",
+      "name": "Repurpose Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        820,
+        120
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "66b1a106-78fd-45ca-a292-ec9a9ebd783c",
+      "name": "Pack Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        980,
+        120
+      ],
+      "parameters": {
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"twitterThread\":[\"Tweet 1 hook\",\"Tweet 2 detail\",\"Tweet 3 CTA\"],\"linkedinPost\":\"A LinkedIn post...\",\"instagramCaption\":\"IG caption with #hashtags\",\"youtubeDescription\":\"YT description with timestamps\",\"newsletterSection\":\"Newsletter section...\"}"
+      }
+    },
+    {
+      "id": "3d26fee1-37f5-43b6-8f6b-42ac2934816a",
+      "name": "Build Content Pack",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1060,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p",
+              "name": "pack",
+              "value": "=# Content Pack: {{ $(\"Extract Core\").item.json.output.headline }}\n\n## X / Twitter thread\n{{ $json.output.twitterThread.join(\"\\n\\n\") }}\n\n## LinkedIn\n{{ $json.output.linkedinPost }}\n\n## Instagram\n{{ $json.output.instagramCaption }}\n\n## YouTube description\n{{ $json.output.youtubeDescription }}\n\n## Newsletter\n{{ $json.output.newsletterSection }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a329520c-9ec3-4da6-9f22-e4de1ba5da3d",
+      "name": "Pack to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        300
+      ],
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.pack }}",
+        "destinationKey": "html",
+        "options": {
+          "simpleLineBreaks": true
+        }
+      }
+    },
+    {
+      "id": "b2e48c91-5999-41ff-864d-e772adaf8e90",
+      "name": "Email Content Pack",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1500,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "you@example.com",
+        "subject": "=Content Pack: {{ $(\"Extract Core\").item.json.output.headline }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "webhookId": ""
+    },
+    {
+      "id": "37125dfa-5dfb-465a-8358-7e4c56e782cb",
+      "name": "Sticky Note fd903868",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        70,
+        250
+      ],
+      "parameters": {
+        "content": "## Content Repurposing Machine\nPaste long-form content -> Extract Core (headline, key points, hooks) -> Repurpose into a Twitter thread, LinkedIn post, Instagram caption, YouTube description and newsletter section -> emailed as one pack. Showcases structured fan-out generation.",
+        "color": 6,
+        "width": 520,
+        "height": 200
+      }
+    }
+  ],
+  "connections": {
+    "Content Intake": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Extract Core",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Core": {
+      "main": [
+        [
+          {
+            "node": "Repurpose to Platforms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Core Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Core",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Core Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Core",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Repurpose to Platforms": {
+      "main": [
+        [
+          {
+            "node": "Build Content Pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Repurpose Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Repurpose to Platforms",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pack Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Repurpose to Platforms",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Content Pack": {
+      "main": [
+        [
+          {
+            "node": "Pack to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pack to HTML": {
+      "main": [
+        [
+          {
+            "node": "Email Content Pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "meta": {}
+}

@@ -1,0 +1,584 @@
+{
+  "name": "Multi-Agent Research & Report Writer",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "AI Research Assistant",
+        "formDescription": "Enter a topic and receive a multi-agent researched report by email.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Research Topic",
+              "fieldName": "topic",
+              "placeholder": "e.g. The impact of AI agents on customer support in 2026",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a6d8e431-6ccb-44ba-8e2c-37c5869a012c",
+      "name": "Research Request",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        128,
+        304
+      ],
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "topic",
+              "name": "topic",
+              "value": "={{ $json[\"Research Topic\"] ?? $json.topic ?? $json.body?.topic }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "45ab4bd6-fcf2-4b41-9506-cf0e12645dab",
+      "name": "Normalize Topic",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research topic: {{ $json.topic }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a research planner. Break the given topic into exactly 3 focused, non-overlapping sub-questions that together cover it comprehensively. Return JSON."
+        }
+      },
+      "id": "e496ba2b-1df9-4935-9ae8-08e946c0d8be",
+      "name": "Planner Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        544,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "0ad91c69-c721-4002-9822-964c3964df7e",
+      "name": "Planner Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"subQuestions\":[\"What is the current state of X?\",\"How does Y impact Z?\",\"What are the main risks and limitations?\"]}"
+      },
+      "id": "7fece718-8483-450e-a4fc-f8c26dc9aaad",
+      "name": "Sub-Questions Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.subQuestions",
+        "options": {
+          "destinationFieldName": "subQuestion"
+        }
+      },
+      "id": "2f2f1545-0fae-4961-9365-8fab08ef6145",
+      "name": "Split Sub-Questions",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        752,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research this sub-question and summarize key facts with concrete figures where possible: {{ $json.subQuestion }}",
+        "options": {
+          "systemMessage": "You are a meticulous researcher and analyst. Write a concise, factual summary of 4-6 sentences that answers the sub-question, including concrete figures, named studies or examples where you are confident. Be balanced, note key uncertainties, and never fabricate precise statistics."
+        }
+      },
+      "id": "9bbd08e1-f831-441c-8122-72a380846f1f",
+      "name": "Researcher Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        944,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "92065547-ad4f-46a2-9f16-2680578a6414",
+      "name": "Researcher Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        912,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sq",
+              "name": "subQuestion",
+              "value": "={{ $(\"Split Sub-Questions\").item.json.subQuestion }}",
+              "type": "string"
+            },
+            {
+              "id": "fd",
+              "name": "finding",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "22fee31c-b533-4263-b313-46518e1b2f42",
+      "name": "Capture Finding",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "findings",
+        "options": {}
+      },
+      "id": "64f57048-1886-4989-88ec-6235086170db",
+      "name": "Collect Findings",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a comprehensive, well-structured research report in Markdown on the topic \"{{ $(\"Normalize Topic\").item.json.topic }}\".\n\nUse these researched findings (JSON):\n{{ JSON.stringify($json.findings) }}\n\nInclude a short intro, one section per sub-question with a clear heading, and a concluding \"Key Takeaways\" bullet list.",
+        "options": {
+          "systemMessage": "You are an expert analyst and technical writer. Produce a clear, factual, well-formatted Markdown report."
+        }
+      },
+      "id": "9b2eadaf-528c-4f40-8115-09770611c096",
+      "name": "Synthesize Report",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1600,
+        304
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "0ec93ef0-d078-454e-a425-8112d41228e3",
+      "name": "Synthesizer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1504,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Critically review this research report for completeness, balance and factual gaps:\n\n{{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a rigorous editor. Score completeness 1-10, list missing angles, and give a one-line verdict. Return JSON."
+        }
+      },
+      "id": "ecf3769a-cc8e-49d8-8089-415115759d57",
+      "name": "Critic Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1808,
+        304
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "d3868602-8485-4a2a-b9c6-1282d47ed9fe",
+      "name": "Critic Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"completenessScore\":8,\"missingAngles\":[\"recent 2026 figures\",\"counterarguments\"],\"verdict\":\"Solid report, add recent data\"}"
+      },
+      "id": "f4d98adb-609c-4769-af62-84004a95682b",
+      "name": "Critique Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1904,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Improve and finalize the research report below by addressing the editor critique. Keep Markdown formatting.\n\n--- REPORT ---\n{{ $(\"Synthesize Report\").item.json.output }}\n\n--- CRITIQUE ---\n{{ JSON.stringify($json.output) }}",
+        "options": {
+          "systemMessage": "You are a senior editor. Apply the critique and return only the final, polished Markdown report."
+        }
+      },
+      "id": "daf67990-c8c0-4b9e-bee5-68163fca756f",
+      "name": "Revise Report",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2064,
+        304
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "01282c4f-24df-4c01-b20d-d5099f6b3776",
+      "name": "Reviser Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2032,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output }}",
+        "destinationKey": "html",
+        "options": {
+          "simpleLineBreaks": true,
+          "tables": true
+        }
+      },
+      "id": "8bb7964f-8462-4634-aa78-8626f0578f5c",
+      "name": "Report to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "gontarekbartosz12@gmail.com",
+        "subject": "=Research Report: {{ $(\"Normalize Topic\").item.json.topic }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "5c0aedcd-aed6-435a-a9a4-6cb12943297f",
+      "name": "Email Report",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2464,
+        304
+      ],
+      "executeOnce": true,
+      "webhookId": ""
+    },
+    {
+      "parameters": {
+        "content": "## Multi-Agent Research & Report Writer\nPlanner -> Researcher (per sub-question, Wikipedia tool) -> Synthesizer -> Critic -> Reviser -> emailed report. Showcases multi-agent orchestration, tool use, structured output and a self-critique loop.",
+        "height": 200,
+        "width": 520,
+        "color": 4
+      },
+      "id": "63c86b59-a77e-4410-902e-59700be26ec3",
+      "name": "Sticky Note 9489a852",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        528
+      ]
+    }
+  ],
+  "connections": {
+    "Research Request": {
+      "main": [
+        [
+          {
+            "node": "Normalize Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Topic": {
+      "main": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planner Agent": {
+      "main": [
+        [
+          {
+            "node": "Split Sub-Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planner Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sub-Questions Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Sub-Questions": {
+      "main": [
+        [
+          {
+            "node": "Researcher Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Researcher Agent": {
+      "main": [
+        [
+          {
+            "node": "Capture Finding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Researcher Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Researcher Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Finding": {
+      "main": [
+        [
+          {
+            "node": "Collect Findings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Findings": {
+      "main": [
+        [
+          {
+            "node": "Synthesize Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthesize Report": {
+      "main": [
+        [
+          {
+            "node": "Critic Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthesizer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Synthesize Report",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critic Agent": {
+      "main": [
+        [
+          {
+            "node": "Revise Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critic Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Critic Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critique Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Critic Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revise Report": {
+      "main": [
+        [
+          {
+            "node": "Report to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviser Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Revise Report",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report to HTML": {
+      "main": [
+        [
+          {
+            "node": "Email Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate"
+  },
+  "meta": {}
+}
