@@ -30,6 +30,11 @@ portfolio/
     └── 13-tradebot-backtest/        ← vectorbt swing-momentum research (walk-forward, decision gates)
 ```
 
+## ⭐ Flagship (separate repos)
+- **[STRONEVO OS + Ada voice agent](https://github.com/gontarekbartosz12-commits/stronevo-os)** — AI operations platform (Next.js, Supabase, n8n) with a Polish AI voice receptionist (Vapi, Deepgram, GPT-4o-mini, ElevenLabs): call → calendar → Google Meet → SMS → CRM, end to end. In production for my own company.
+- **[n8n AI automation workflows](https://github.com/gontarekbartosz12-commits/n8n-ai-automation-portfolio)** — chatbot, voice-agent booking, AI lead engine, RAG + LLM-judge evaluation.
+- **[Copilot Studio agents](https://github.com/gontarekbartosz12-commits/copilot-studio-agents)** — conversational agents built in Microsoft Copilot Studio / Power Platform.
+
 ## How to read it
 Open `PORTFOLIO_CASE_STUDIES_EN.html` in a browser for the full write-up, or browse
 `projects/` for per-project READMEs and sanitised code.
