@@ -1,6 +1,6 @@
 # Przykładowe prace — portfolio na Useme
 
-Pięć przykładowych realizacji i jeden podgląd zbiorczy. Pliki są gotowe do wgrania do sekcji „Portfolio” na Useme i do wysłania klientowi.
+Sześć przykładowych realizacji i jeden podgląd zbiorczy. Pliki są gotowe do wgrania do sekcji „Portfolio” na Useme i do wysłania klientowi.
 **Wszystkie marki są fikcyjne.** Nazwy firm, adresy, telefony, e-maile, ceny i kody rabatowe zostały wymyślone na potrzeby prezentacji. Projekty powstały z pomocą AI (m.in. wycinanie tła modelem AI) i zostały dopracowane ręcznie.
 
 ## Zawartość
@@ -13,6 +13,7 @@ Pięć przykładowych realizacji i jeden podgląd zbiorczy. Pliki są gotowe do 
 | `03-logo-wizytowka/` | `logo.svg` (wektor, tekst zamieniony na krzywe), `logo-light.png`, `logo-dark.png`, `wizytowka-print.pdf` (druk), `wizytowka-przod.png`, `wizytowka-tyl.png` (podglądy) |
 | `04-obrobka-zdjec/` | `przed-po.png` (porównanie), `packshot.png` (2000×2000, białe tło), `miniatura-allegro.png` (1600×1600) |
 | `05-rolka/` | `rolka-demo.mp4` (1080×1920, 30 kl./s, 21,6 s, H.264 + AAC) i `okladka.png` (1080×1920) |
+| `06-oferta-pdf-stories-ankieta/` | `oferta.pdf` (A4, 4 strony, cennik i pakiety), `ankieta.pdf` (A4, ankieta przed pierwszą wizytą), `stories-1.png` … `stories-3.png` (1080×1920, skrócona oferta bez cennika) |
 
 ## Opisy do wklejenia w portfolio na Useme
 
@@ -21,6 +22,7 @@ Pięć przykładowych realizacji i jeden podgląd zbiorczy. Pliki są gotowe do 
 3. **Logo i wizytówka dla studia fizjoterapii** — Logo „Oś Ruchu” (znak i logotyp, plik wektorowy SVG) w wersjach na jasne i ciemne tło oraz dwustronna wizytówka 85×55 mm ze spadem 3 mm i kodem QR, gotowa do druku w PDF.
 4. **Obróbka zdjęcia produktowego** — Zdjęcie produktu na przypadkowym tle zamienione w czysty packshot na białym tle (wycięcie tła, korekta bieli i kolorów, retusz, naturalny cień) oraz miniatura do sklepu i marketplace z dwiema plakietkami korzyści.
 5. **Rolka 9:16 dla kawiarni** — Krótki film reklamowo-edukacyjny (21 s, 1080×1920): hak w pierwszych 2 sekundach, szybkie cięcia do rytmu, animowane napisy w stylu TikToka i końcowa karta z rabatem i wezwaniem do działania.
+6. **Oferta PDF, Stories i ankieta dla studia fizjoterapii** — Spójny zestaw sprzedażowy marki „Oś Ruchu”: czterostronicowa oferta PDF z cennikiem i pakietami wizyt, czytelna także na telefonie, trzy plansze Instagram Stories ze skróconą ofertą bez cennika i jednostronicowa ankieta dla pacjentów przed pierwszą wizytą. Tekst w PDF-ach jest prawdziwym tekstem z osadzonymi fontami, bez grafik rastrowych.
 
 ## Źródła zdjęć i wideo (licencje)
 
